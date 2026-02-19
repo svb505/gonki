@@ -19,6 +19,7 @@
 #include "text.h"
 #include "environnement.h"
 #include "Road.h"
+#include "rank.h"
 
 Camera cam;
 Car car;
@@ -56,15 +57,13 @@ void processInput(GLFWwindow* window,float dt){
 }
 
 int main(){
-    if (!glfwInit())
-    {
+    if (!glfwInit()){
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
 
     GLFWwindow* window = glfwCreateWindow(1500, 800, "3D Example", NULL, NULL);
-    if (!window)
-    {
+    if (!window){
         std::cout << "Failed to create window\n";
         glfwTerminate();
         return -1;
@@ -129,22 +128,8 @@ int main(){
 
         drawRoad();
 
-        for (auto& pair : otherCars){
-            uint32_t id = pair.first;
-            CarState& state = pair.second;
-
-            glPushMatrix();
-            glTranslatef(state.x, 0.0f, state.y);
-            glRotatef(state.angle * 57.2958f, 0, 1, 0);
-            car.draw();
-            glPopMatrix();
-
-            int place = car.getPlayerPlace(state, otherCars, checkpoints.size());
-
-            std::string hud =  "Place: " + std::to_string(place) + "/" + std::to_string(otherCars.size() + 1);
-            RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hud.c_str());
-
-        }
+        std::unordered_map<uint32_t, CarState> allCars = otherCars;
+        car.drawAllCars(allCars, car);
 
         glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -192,16 +177,18 @@ int main(){
                 enet_packet_destroy(event.packet);
             }
         }
+        RaceResult rank = getRank(myCar, otherCars);
+
+        for (auto& [id, state] : otherCars) {
+            int place = rank.places[id];
+            std::string hudAll = "Place: " + std::to_string(place) + "/" + std::to_string(rank.allCars.size());
+            RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hudAll.c_str());
+        }
 
         glDisable(GL_DEPTH_TEST);
-        car.drawHud();
 
-        int place = car.getPlayerPlace(myCar, otherCars, checkpoints.size());
+        car.drawHud(myCar,otherCars,totalLaps, rank);
 
-        std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totalLaps) +
-            "  Place: " + std::to_string(place) + "/" + std::to_string(otherCars.size() + 1);
-
-        RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
         if (readyToRace) processInput(window, deltaTime);
         else RenderTextHUD(750.0f, 400.0f, 1, 1, 1, "Waiting others players\nMinimum 3 players", 1500, 800);
         

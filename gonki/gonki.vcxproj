@@ -132,6 +132,7 @@
     <ClCompile Include="bot.cpp" />
     <ClCompile Include="car.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="rank.cpp" />
     <ClCompile Include="Road.cpp" />
     <ClCompile Include="text.cpp" />
   </ItemGroup>
@@ -141,6 +142,7 @@
     <ClInclude Include="car.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="environnement.h" />
+    <ClInclude Include="rank.h" />
     <ClInclude Include="Road.h" />
     <ClInclude Include="text.h" />
   </ItemGroup>

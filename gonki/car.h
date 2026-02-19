@@ -3,6 +3,7 @@
 #include "Road.h"
 #include <vector>
 #include <unordered_map>
+#include "rank.h"
 
 class Car {	
 public:
@@ -17,8 +18,9 @@ public:
 	float limitSpeed = 150.0f;
 
 	void draw();
+	void drawAllCars(std::unordered_map<uint32_t, CarState>& allCars, Car& car);
 	void updatePos(float dt);
-	void drawHud();
+	void drawHud(CarState& myCar, std::unordered_map<uint32_t, CarState>& otherCars,int totLaps,RaceResult& rank);
 	void updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps);
 	float computeRank(const CarState& car, int totalCheckpoints);
 	int getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t, CarState>& others, int totalCheckpoints);

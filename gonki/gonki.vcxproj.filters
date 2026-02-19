@@ -30,6 +30,9 @@
     <ClCompile Include="Road.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="rank.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="car.h">
@@ -51,6 +54,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="rank.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

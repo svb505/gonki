@@ -6,9 +6,10 @@
 #include "text.h"
 #include <algorithm>
 #include <format>
+#include <string>
+#include "rank.h"
 
-void Car::updatePos(float dt)
-{
+void Car::updatePos(float dt){
     if (fabs(speed) < 0.001f) return;
 
     float turnRadius = wheelBase / tan(steering);
@@ -75,8 +76,7 @@ void Car::draw() {
 
     glPopMatrix();
 }
-
-void Car::drawHud() {
+void Car::drawHud(CarState& myCar, std::unordered_map<uint32_t, CarState>& otherCars,int totLaps, RaceResult& rank) {
     int w, h;
     glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
 
@@ -89,18 +89,22 @@ void Car::drawHud() {
     glPushMatrix();
     glLoadIdentity();
 
+    int myPlace = rank.places[myCar.id];
+    
+    
+    std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totLaps) +
+        " Place: " + std::to_string(myPlace) + "/" + std::to_string(rank.allCars.size());
     std::string formatted_speed = std::format("Speed: {}", speed);
     std::string formatted_c = std::format("X: {} | Y: {} | Z: {}", positions[0], positions[1], positions[2]);
     RenderTextHUD(20.0f, h - 40.0f, 1, 1, 1, formatted_speed.c_str(), w, h);
     RenderTextHUD(20.0f, h - 20.0f, 1, 1, 1, formatted_c.c_str(), w, h);
-
+    RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
-
 void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps) {
     int next = (car.lastCheckpoint + 1) % checkpoints.size();
     Vec2 cp = checkpoints[next].pos;
@@ -130,13 +134,21 @@ float Car::computeRank(const CarState& car, int totalCheckpoints) {
     return car.lap * totalCheckpoints + car.lastCheckpoint + car.progress;
 }
 int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t, CarState>& others, int totalCheckpoints) {
-    std::vector<float> ranks;
-    ranks.push_back(computeRank(myCar, totalCheckpoints));
-    for (auto& [id, car] : others) {
-        ranks.push_back(computeRank(car, totalCheckpoints));
-    }
-    std::sort(ranks.begin(), ranks.end(), std::greater<float>());
-    auto it = std::find(ranks.begin(), ranks.end(), computeRank(myCar, totalCheckpoints));
-    return std::distance(ranks.begin(), it) + 1; 
-}
+    float myRank = computeRank(myCar, totalCheckpoints);
+    int place = 1;
 
+    for (const auto& [id, car] : others) {
+        if (computeRank(car, totalCheckpoints) > myRank) place++;
+    }
+
+    return place;
+}
+void Car::drawAllCars(std::unordered_map<uint32_t, CarState>& allCars,Car& car) {
+    for (auto& [id, state] : allCars) {
+        glPushMatrix();
+        glTranslatef(state.x, 0.0f, state.y);
+        glRotatef(state.angle * 57.2958f, 0, 1, 0);
+        car.draw();
+        glPopMatrix();
+    }
+}
