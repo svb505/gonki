@@ -4,15 +4,15 @@
 #include <GLFW/glfw3.h>
 
 std::vector<Checkpoint> checkpoints = {
-    { {35, 0}, 2.0f },
-    { {95, 0}, 2.0f },
-    { {95, 35}, 2.0f },
-    { {130, 35}, 2.0f },
-    { {130, 95}, 2.0f },
-    { {95, 95}, 2.0f },
-    { {35, 130}, 2.0f },
-    { {0, 95}, 2.0f },
-    { {0, 35}, 2.0f }
+    { {35, 0}, 7.0f },
+    { {95, 0}, 7.0f },
+    { {95, 35}, 7.0f },
+    { {130, 35}, 7.0f },
+    { {130, 95}, 7.0f },
+    { {95, 95}, 7.0f },
+    { {35, 130}, 7.0f },
+    { {0, 95}, 7.0f },
+    { {0, 35}, 7.0f }
 };
 
 Vec2 perpendicular(const Vec2& d) {
@@ -105,4 +105,16 @@ void drawRoad() {
     drawRoadStraight(p6, p7, style);
     Vec2 c4 = { R, R };
     drawRoadTurn(c4, R, myPI, 3 * myPI / 2, style);
+
+    glPointSize(10);
+    glBegin(GL_POINTS);
+    glColor3f(1, 0, 0);
+
+    for (const auto& cp : checkpoints)
+    {
+        glVertex3f(cp.pos.x, 0.5f, cp.pos.y);
+    }
+
+    glEnd();
+
 }
