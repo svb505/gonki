@@ -20,26 +20,26 @@ public:
     float cameraZ = 0.0f;
     float cameraYaw = 0.0f;
 
-    void setupCamera(Car& car)
+    void setupCamera(CarState& car)
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        float forwardX = cos(car.rotation);
-        float forwardZ = -sin(car.rotation); 
+        float forwardX = cos(car.angle);
+        float forwardZ = -sin(car.angle);
 
-        float targetX = car.positions[0] - forwardX * camDistance;
-        float targetY = car.positions[1] + camHeight;
-        float targetZ = car.positions[2] - forwardZ * camDistance;
+        float targetX = car.x - forwardX * camDistance;
+        float targetY = car.y + camHeight;
+        float targetZ = car.z - forwardZ * camDistance;
 
         float smooth = 0.15f;
         cameraX += (targetX - cameraX) * smooth;
         cameraY += (targetY - cameraY) * smooth;
         cameraZ += (targetZ - cameraZ) * smooth;
 
-        float lookX = car.positions[0] + forwardX * 5.0f;
-        float lookY = car.positions[1] + 1.0f;
-        float lookZ = car.positions[2] + forwardZ * 5.0f;
+        float lookX = car.x + forwardX * 5.0f;
+        float lookY = car.y + 1.0f;
+        float lookZ = car.z + forwardZ * 5.0f;
 
         gluLookAt(
             cameraX, cameraY, cameraZ,

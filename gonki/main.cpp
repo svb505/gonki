@@ -1,10 +1,18 @@
 #define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>  
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
+#include <enet/enet.h>
+#include "common.h"
 #include <algorithm>
+#include <unordered_map>
+#include <cstdint>
+#include <unordered_set>
 #include "camera.h"
 #include "car.h"
 #include "text.h"
@@ -13,19 +21,29 @@
 
 Camera cam;
 Car car;
+CarState myCar{};
+uint32_t myId = 0;
+std::unordered_map<uint32_t, CarState> otherCars;
 
+void SendState(ENetPeer* peer){
+    ClientStatePacket packet{};
+    packet.type = PacketType::ClientState;
+    packet.state = myCar;
+
+    ENetPacket* p = enet_packet_create(&packet,sizeof(packet),ENET_PACKET_FLAG_UNSEQUENCED);
+
+    enet_peer_send(peer, 0, p);
+}
 void processInput(GLFWwindow* window,float dt){
     float steerSpeed = 0.5f;
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) if (car.speed <= car.limitSpeed) car.speed += 5.0f * dt;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) if (car.speed > 0) car.speed -= 3.0f * dt;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) car.steering += steerSpeed * dt;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) car.steering -= steerSpeed * dt;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE &&
-        glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE)
-    {
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) if (myCar.speed <= car.limitSpeed) myCar.speed += 5.0f * dt;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) if (myCar.speed > 0) myCar.speed -= 3.0f * dt;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) myCar.angle += steerSpeed * dt;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) myCar.angle -= steerSpeed * dt;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE){
         float returnSpeed = 4.0f * dt;
 
         if (car.steering > 0.0f) car.steering = std::max(0.0f, car.steering - returnSpeed);
@@ -51,6 +69,31 @@ int main(){
         return -1;
     }
 
+    enet_initialize();
+    atexit(enet_deinitialize);
+
+    ENetHost* client = enet_host_create(nullptr, 1, 2, 0, 0);
+
+    ENetAddress address;
+    enet_address_set_host(&address, "127.0.0.1");
+    address.port = 7777;
+
+    ENetPeer* server = enet_host_connect(client, &address, 2, 0);
+
+    ENetEvent event;
+    if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
+        std::cout << "Connected to server\n";
+    }
+    else{
+        std::cout << "Connection failed\n";
+        return 1;
+    }
+
+    myCar.x = 0;
+    myCar.y = 0;
+    myCar.speed = 0;
+    myCar.angle = 0;
+
     glfwMakeContextCurrent(window);
 
     glEnable(GL_DEPTH_TEST);
@@ -67,8 +110,7 @@ int main(){
     double lastTime = glfwGetTime();
     double deltaTime = 0.0;
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)){
         double currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -78,17 +120,69 @@ int main(){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
         drawSky();
-        cam.setupCamera(car);
+        cam.setupCamera(myCar);
         drawGround(cam.cameraX,cam.cameraZ);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
 
         drawRoad();
 
+        for (auto& pair : otherCars){
+            uint32_t id = pair.first;
+            CarState& state = pair.second;
+
+            glPushMatrix();
+            glTranslatef(state.x, 0.0f, state.y);
+            glRotatef(state.angle * 57.2958f, 0, 1, 0);
+            car.draw();
+            glPopMatrix();
+        }
+
         glDisable(GL_POLYGON_OFFSET_FILL);
 
-        car.updatePos(deltaTime);
+        myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
+        myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
+
+        glPushMatrix();
+        glTranslatef(myCar.x, myCar.y, myCar.z); 
+        glRotatef(myCar.angle * 57.2958f, 0, 1, 0);
         car.draw();
+        glPopMatrix();
+
+        SendState(server);
+
+        while (enet_host_service(client, &event, 1) > 0){
+            if (event.type == ENET_EVENT_TYPE_RECEIVE){
+                PacketType type = static_cast<PacketType>(event.packet->data[0]);
+
+                if (type == PacketType::ClientState){
+                    auto* packet = (ClientStatePacket*)event.packet->data;
+                    myCar.id = packet->state.id;  
+                    myCar.x = packet->state.x;
+                    myCar.y = packet->state.y;
+                    myCar.z = packet->state.z;
+                }
+                else if (type == PacketType::Snapshot){
+                    auto* snap = (SnapshotPacket*)event.packet->data;
+
+                    for (uint32_t i = 0; i < snap->count; i++){
+                        CarState& s = snap->cars[i];
+                        if (s.id == myCar.id) continue;
+                        otherCars[s.id] = s;
+                    }
+
+                    std::unordered_set<uint32_t> ids;
+                    for (uint32_t i = 0; i < snap->count; i++) ids.insert(snap->cars[i].id);
+
+                    for (auto it = otherCars.begin(); it != otherCars.end(); ){
+                        if (!ids.count(it->first)) it = otherCars.erase(it);
+                        else ++it;
+                    }
+                }
+
+                enet_packet_destroy(event.packet);
+            }
+        }
 
         glDisable(GL_DEPTH_TEST);
         car.drawHud();
