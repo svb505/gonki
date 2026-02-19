@@ -115,8 +115,6 @@ int main(){
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
 
-        processInput(window,deltaTime);
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
         drawSky();
@@ -186,6 +184,8 @@ int main(){
 
         glDisable(GL_DEPTH_TEST);
         car.drawHud();
+        if (otherCars.size() >= 3) processInput(window, deltaTime);
+        else RenderTextHUD(750.0f, 400.0f, 1, 1, 1, "Waiting others players\nMinimum 3 players", 1500, 800);
         glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
