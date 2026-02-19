@@ -4,6 +4,7 @@
 #include <cmath>
 #include "car.h"
 #include "text.h"
+#include <algorithm>
 #include <format>
 
 void Car::updatePos(float dt)
@@ -93,8 +94,49 @@ void Car::drawHud() {
     RenderTextHUD(20.0f, h - 40.0f, 1, 1, 1, formatted_speed.c_str(), w, h);
     RenderTextHUD(20.0f, h - 20.0f, 1, 1, 1, formatted_c.c_str(), w, h);
 
+
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
+
+void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps) {
+    int next = (car.lastCheckpoint + 1) % checkpoints.size();
+    Vec2 cp = checkpoints[next].pos;
+
+    float dx = car.x - cp.x;
+    float dz = car.z - cp.y; 
+    float dist = std::sqrt(dx * dx + dz * dz);
+
+    if (dist < checkpoints[next].radius) {
+        car.lastCheckpoint = next;
+        if (next == 0) { 
+            car.lap++;
+            if (car.lap >= totalLaps) {
+                car.speed = 0;
+            }
+        }
+    }
+
+    Vec2 cpNext = checkpoints[(next + 1) % checkpoints.size()].pos;
+    Vec2 dir = { cpNext.x - cp.x, cpNext.y - cp.y };
+    Vec2 toCar = { car.x - cp.x, car.z - cp.y };
+    float lenDir = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+    car.progress = ((toCar.x * dir.x + toCar.y * dir.y) / (lenDir * lenDir));
+    car.progress = std::clamp(car.progress, 0.0f, 1.0f);
+}
+float Car::computeRank(const CarState& car, int totalCheckpoints) {
+    return car.lap * totalCheckpoints + car.lastCheckpoint + car.progress;
+}
+int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t, CarState>& others, int totalCheckpoints) {
+    std::vector<float> ranks;
+    ranks.push_back(computeRank(myCar, totalCheckpoints));
+    for (auto& [id, car] : others) {
+        ranks.push_back(computeRank(car, totalCheckpoints));
+    }
+    std::sort(ranks.begin(), ranks.end(), std::greater<float>());
+    auto it = std::find(ranks.begin(), ranks.end(), computeRank(myCar, totalCheckpoints));
+    return std::distance(ranks.begin(), it) + 1; 
+}
+

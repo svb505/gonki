@@ -1,4 +1,8 @@
 #pragma once
+#include "common.h"
+#include "Road.h"
+#include <vector>
+#include <unordered_map>
 
 class Car {	
 public:
@@ -15,4 +19,7 @@ public:
 	void draw();
 	void updatePos(float dt);
 	void drawHud();
+	void updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps);
+	float computeRank(const CarState& car, int totalCheckpoints);
+	int getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t, CarState>& others, int totalCheckpoints);
 };

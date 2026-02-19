@@ -132,6 +132,7 @@
     <ClCompile Include="bot.cpp" />
     <ClCompile Include="car.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Road.cpp" />
     <ClCompile Include="text.cpp" />
   </ItemGroup>
   <ItemGroup>

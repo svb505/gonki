@@ -13,6 +13,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <unordered_set>
+#include <string>
 #include "camera.h"
 #include "car.h"
 #include "text.h"
@@ -94,6 +95,9 @@ int main(){
     myCar.speed = 0;
     myCar.angle = 0;
 
+    int totalLaps = 3;
+    bool readyToRace = false;
+
     glfwMakeContextCurrent(window);
 
     glEnable(GL_DEPTH_TEST);
@@ -134,6 +138,12 @@ int main(){
             glRotatef(state.angle * 57.2958f, 0, 1, 0);
             car.draw();
             glPopMatrix();
+
+            int place = car.getPlayerPlace(state, otherCars, checkpoints.size());
+
+            std::string hud =  "Place: " + std::to_string(place) + "/" + std::to_string(otherCars.size() + 1);
+            RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hud.c_str());
+
         }
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -176,16 +186,25 @@ int main(){
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
                     }
+                    readyToRace = snap->count >= 3;
                 }
-
+                
                 enet_packet_destroy(event.packet);
             }
         }
 
         glDisable(GL_DEPTH_TEST);
         car.drawHud();
-        if (otherCars.size() >= 3) processInput(window, deltaTime);
+
+        int place = car.getPlayerPlace(myCar, otherCars, checkpoints.size());
+
+        std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totalLaps) +
+            "  Place: " + std::to_string(place) + "/" + std::to_string(otherCars.size() + 1);
+
+        RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
+        if (readyToRace) processInput(window, deltaTime);
         else RenderTextHUD(750.0f, 400.0f, 1, 1, 1, "Waiting others players\nMinimum 3 players", 1500, 800);
+        
         glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
