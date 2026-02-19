@@ -160,8 +160,8 @@ int main(){
 
                     for (uint32_t i = 0; i < snap->count; i++){
                         CarState& s = snap->cars[i];
-                        if (s.id == myCar.id) continue;
-                        otherCars[s.id] = s;
+                        if (s.id == myCar.id) myCar = s;  
+                        else otherCars[s.id] = s;
                     }
 
                     std::unordered_set<uint32_t> ids;

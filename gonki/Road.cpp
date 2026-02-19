@@ -77,6 +77,25 @@ void drawRoadTurn(const Vec2& center, float radius, float startAngle, float endA
 
     glEnd();
 }
+void drawCheckPoints() {
+    glColor3f(1.0f, 0.0f, 0.0f);
+
+    const int segments = 32;
+
+    for (const auto& cp : checkpoints) {
+        glBegin(GL_LINE_LOOP); 
+        float radius = cp.radius;
+
+        for (int i = 0; i < segments; i++) {
+            float theta = 2.0f * 3.1415926f * float(i) / float(segments);
+            float x = cp.pos.x + radius * cosf(theta);
+            float z = cp.pos.y + radius * sinf(theta);
+            glVertex3f(x, 0.5f, z); 
+        }
+
+        glEnd(); 
+    }
+}
 
 void drawRoad() {
     RoadStyle style{ 4.0f };
@@ -106,14 +125,7 @@ void drawRoad() {
     Vec2 c4 = { R, R };
     drawRoadTurn(c4, R, myPI, 3 * myPI / 2, style);
 
-    glPointSize(10);
-    glBegin(GL_POINTS);
-    glColor3f(1, 0, 0);
-
-    for (const auto& cp : checkpoints)
-    {
-        glVertex3f(cp.pos.x, 0.5f, cp.pos.y);
-    }
+    drawCheckPoints();
 
     glEnd();
 
