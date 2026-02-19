@@ -171,7 +171,7 @@ int main(){
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
                     }
-                    readyToRace = snap->count >= 3;
+                    readyToRace = snap->count >= 1;
                 }
                 
                 enet_packet_destroy(event.packet);

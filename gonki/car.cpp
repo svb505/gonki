@@ -94,10 +94,8 @@ void Car::drawHud(CarState& myCar, std::unordered_map<uint32_t, CarState>& other
     
     std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totLaps) +
         " Place: " + std::to_string(myPlace) + "/" + std::to_string(rank.allCars.size());
-    std::string formatted_speed = std::format("Speed: {}", speed);
-    std::string formatted_c = std::format("X: {} | Y: {} | Z: {}", positions[0], positions[1], positions[2]);
+    std::string formatted_speed = std::format("Speed: {:.1f}", myCar.speed);
     RenderTextHUD(20.0f, h - 40.0f, 1, 1, 1, formatted_speed.c_str(), w, h);
-    RenderTextHUD(20.0f, h - 20.0f, 1, 1, 1, formatted_c.c_str(), w, h);
     RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
 
     glPopMatrix();
