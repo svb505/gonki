@@ -144,36 +144,42 @@ int main(){
 
         SendState(server);
 
-        while (enet_host_service(client, &event, 1) > 0){
-            if (event.type == ENET_EVENT_TYPE_RECEIVE){
+        while (enet_host_service(client, &event, 1) > 0) {
+            if (event.type == ENET_EVENT_TYPE_RECEIVE) {
                 PacketType type = static_cast<PacketType>(event.packet->data[0]);
 
-                if (type == PacketType::ClientState){
-                    auto* packet = (ClientStatePacket*)event.packet->data;
-                    myCar.id = packet->state.id;  
-                    myCar.x = packet->state.x;
-                    myCar.y = packet->state.y;
-                    myCar.z = packet->state.z;
-                }
-                else if (type == PacketType::Snapshot){
+                if (type == PacketType::Snapshot) {
                     auto* snap = (SnapshotPacket*)event.packet->data;
 
-                    for (uint32_t i = 0; i < snap->count; i++){
+                    for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
-                        if (s.id == myCar.id) myCar = s;  
-                        else otherCars[s.id] = s;
-                    }
+                        if (s.id == myCar.id) {
+                            float dx = s.x - myCar.x;
+                            float dz = s.z - myCar.z;
+                            float distance = std::sqrt(dx * dx + dz * dz);
 
+                            const float MAX_DESYNC = 2.0f; 
+                            if (distance > MAX_DESYNC) {
+                                myCar.x = s.x;
+                                myCar.y = s.y;
+                                myCar.z = s.z;
+                                myCar.angle = s.angle;
+                                myCar.speed = s.speed;
+                            }
+                        }
+                        else {
+                            otherCars[s.id] = s;
+                        }
+                    }
                     std::unordered_set<uint32_t> ids;
                     for (uint32_t i = 0; i < snap->count; i++) ids.insert(snap->cars[i].id);
-
-                    for (auto it = otherCars.begin(); it != otherCars.end(); ){
+                    for (auto it = otherCars.begin(); it != otherCars.end(); ) {
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
                     }
                     readyToRace = snap->count >= 1;
                 }
-                
+
                 enet_packet_destroy(event.packet);
             }
         }
