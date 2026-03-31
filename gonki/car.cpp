@@ -91,10 +91,10 @@ void Car::drawHud(CarState& myCar, std::unordered_map<uint32_t, CarState>& other
 
     int myPlace = rank.places[myCar.id];
     
-    
     std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totLaps) +
         " Place: " + std::to_string(myPlace) + "/" + std::to_string(rank.allCars.size());
     std::string formatted_speed = std::format("Speed: {:.1f}", myCar.speed);
+
     RenderTextHUD(20.0f, h - 40.0f, 1, 1, 1, formatted_speed.c_str(), w, h);
     RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
 
@@ -115,9 +115,7 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
         car.lastCheckpoint = next;
         if (next == 0) { 
             car.lap++;
-            if (car.lap >= totalLaps) {
-                car.speed = 0;
-            }
+            if (car.lap >= totalLaps) car.speed = 0;
         }
     }
 
@@ -125,6 +123,7 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
     Vec2 dir = { cpNext.x - cp.x, cpNext.y - cp.y };
     Vec2 toCar = { car.x - cp.x, car.z - cp.y };
     float lenDir = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+
     car.progress = ((toCar.x * dir.x + toCar.y * dir.y) / (lenDir * lenDir));
     car.progress = std::clamp(car.progress, 0.0f, 1.0f);
 }
@@ -135,9 +134,7 @@ int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t
     float myRank = computeRank(myCar, totalCheckpoints);
     int place = 1;
 
-    for (const auto& [id, car] : others) {
-        if (computeRank(car, totalCheckpoints) > myRank) place++;
-    }
+    for (const auto& [id, car] : others) if (computeRank(car, totalCheckpoints) > myRank) place++;
 
     return place;
 }

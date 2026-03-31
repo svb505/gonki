@@ -1,14 +1,14 @@
 #pragma once
 #include <cstdint>
 
-enum class PacketType : uint8_t
-{
+constexpr int MAX_PLAYERS = 32;
+
+enum class PacketType : uint8_t{
     ClientState = 1,
     Snapshot = 2
 };
 
-struct CarState
-{
+struct CarState{
     uint32_t id;
     float x;
     float y;
@@ -21,16 +21,12 @@ struct CarState
     float progress = 0.0f; 
 };
 
-struct ClientStatePacket
-{
+struct ClientStatePacket{
     PacketType type;
     CarState state;
 };
 
-constexpr int MAX_PLAYERS = 32;
-
-struct SnapshotPacket
-{
+struct SnapshotPacket{
     PacketType type;
     uint32_t count;
     CarState cars[MAX_PLAYERS];

@@ -4,32 +4,21 @@
 
 GLuint fontBase = 0;
 
-void BuildFont()
-{
+void BuildFont(){
     HFONT font;
     HDC hDC = wglGetCurrentDC();
 
     fontBase = glGenLists(256);
 
-    font = CreateFontA(
-        -16, 0, 0, 0,
-        FW_NORMAL,
-        FALSE, FALSE, FALSE,
-        ANSI_CHARSET,
-        OUT_TT_PRECIS,
-        CLIP_DEFAULT_PRECIS,
-        ANTIALIASED_QUALITY,
-        FF_DONTCARE | DEFAULT_PITCH,
-        "Consolas"
-    );
+    font = CreateFontA(-16, 0, 0, 0,FW_NORMAL,FALSE, FALSE, FALSE, ANSI_CHARSET,OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,
+        ANTIALIASED_QUALITY,FF_DONTCARE | DEFAULT_PITCH,"Consolas");
 
     SelectObject(hDC, font);
     wglUseFontBitmapsA(hDC, 0, 256, fontBase);
 
     DeleteObject(font);
 }
-void PrintText(const char* text)
-{
+void PrintText(const char* text){
     if (!text) return;
 
     glPushAttrib(GL_LIST_BIT);
@@ -37,8 +26,7 @@ void PrintText(const char* text)
     glCallLists((GLsizei)strlen(text), GL_UNSIGNED_BYTE, text);
     glPopAttrib();
 }
-void RenderTextHUD(float x, float y, float r, float g, float b, const char* text, int screenW, int screenH)
-{
+void RenderTextHUD(float x, float y, float r, float g, float b, const char* text, int screenW, int screenH){
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -61,8 +49,7 @@ void RenderTextHUD(float x, float y, float r, float g, float b, const char* text
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 }
-void RenderTextWorld(float x, float y, float z, float r, float g, float b, const char* text)
-{
+void RenderTextWorld(float x, float y, float z, float r, float g, float b, const char* text){
     glPushMatrix();
 
     glTranslatef(x, y, z);
@@ -74,4 +61,3 @@ void RenderTextWorld(float x, float y, float z, float r, float g, float b, const
 
     glPopMatrix();
 }
-

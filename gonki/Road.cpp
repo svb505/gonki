@@ -15,16 +15,12 @@ std::vector<Checkpoint> checkpoints = {
     { {0, 35}, 10.0f }
 };
 
-Vec2 perpendicular(const Vec2& d) {
-    return { -d.y, d.x };
-}
-
+Vec2 perpendicular(const Vec2& d) { return { -d.y, d.x }; }
 Vec2 normalizeVec2(const Vec2& v) {
     float len = std::sqrt(v.x * v.x + v.y * v.y);
     if (len == 0) return { 0, 0 };
     return { v.x / len, v.y / len };
 }
-
 void drawRoadStraight(const Vec2& start, const Vec2& end, const RoadStyle& style) {
     Vec2 dir = normalizeVec2({ end.x - start.x, end.y - start.y });
     Vec2 n = perpendicular(dir);
@@ -47,7 +43,6 @@ void drawRoadStraight(const Vec2& start, const Vec2& end, const RoadStyle& style
     glVertex3f(v4.x, ROAD_Y, v4.y);
     glEnd();
 }
-
 void drawRoadTurn(const Vec2& center, float radius, float startAngle, float endAngle, const RoadStyle& style, int segments) {
     float innerR = radius - style.width * 0.5f;
     float outerR = radius + style.width * 0.5f;

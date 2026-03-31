@@ -24,13 +24,13 @@
 Camera cam;
 Car car;
 CarState myCar{};
+
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
 
 void SendState(ENetPeer* peer){
     ClientStatePacket packet{};
     packet.type = PacketType::ClientState;
-    packet.state = myCar;
 
     ENetPacket* p = enet_packet_create(&packet,sizeof(packet),ENET_PACKET_FLAG_UNSEQUENCED);
 
@@ -52,10 +52,8 @@ void processInput(GLFWwindow* window,float dt){
         else car.steering = std::min(0.0f, car.steering + returnSpeed);
     }
 
-
     car.steering = std::clamp(car.steering, -car.maxSteering, car.maxSteering);
 }
-
 int main(){
     if (!glfwInit()){
         std::cout << "Failed to initialize GLFW\n";
@@ -81,6 +79,7 @@ int main(){
     ENetPeer* server = enet_host_connect(client, &address, 2, 0);
 
     ENetEvent event;
+
     if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
         std::cout << "Connected to server\n";
     }
@@ -167,9 +166,7 @@ int main(){
                                 myCar.speed = s.speed;
                             }
                         }
-                        else {
-                            otherCars[s.id] = s;
-                        }
+                        else otherCars[s.id] = s;
                     }
                     std::unordered_set<uint32_t> ids;
                     for (uint32_t i = 0; i < snap->count; i++) ids.insert(snap->cars[i].id);
@@ -202,7 +199,6 @@ int main(){
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-
     }
 
     glfwDestroyWindow(window);
