@@ -23,10 +23,12 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "GUI.h"
 
 Camera cam;
 Car car;
 CarState myCar{};
+GUI gui;
 
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
@@ -136,10 +138,9 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //
+        gui.render(readyToRace,server);
 
         ImGui::Render();
-
 
         drawSky();
         cam.setupCamera(myCar);
@@ -216,7 +217,6 @@ int main(){
         car.drawHud(myCar,otherCars,totalLaps, rank);
 
         if (readyToRace) processInput(window, deltaTime);
-        else RenderTextHUD(750.0f, 400.0f, 1, 1, 1, "Waiting others players\nMinimum 3 players", 1500, 800);
         
         glEnable(GL_DEPTH_TEST);
 
