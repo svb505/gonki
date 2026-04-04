@@ -20,6 +20,9 @@
 #include "environnement.h"
 #include "Road.h"
 #include "rank.h"
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 Camera cam;
 Car car;
@@ -112,6 +115,16 @@ int main(){
     double lastTime = glfwGetTime();
     double deltaTime = 0.0;
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    ImGui::StyleColorsDark();
+
+
     while (!glfwWindowShouldClose(window)){
         double currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
@@ -119,6 +132,15 @@ int main(){
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        //
+
+        ImGui::Render();
+
+
         drawSky();
         cam.setupCamera(myCar);
         drawGround(cam.cameraX,cam.cameraZ);
@@ -145,6 +167,7 @@ int main(){
 
         while (enet_host_service(client, &event, 1) > 0) {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
+
                 PacketType type = static_cast<PacketType>(event.packet->data[0]);
 
                 if (type == PacketType::Snapshot) {
@@ -197,10 +220,14 @@ int main(){
         
         glEnable(GL_DEPTH_TEST);
 
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
 

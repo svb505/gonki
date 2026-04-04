@@ -59,5 +59,8 @@
     <ClInclude Include="rank.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
