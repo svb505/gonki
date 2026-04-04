@@ -33,6 +33,7 @@ GUI gui;
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
 
+
 void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames, float& fps) {
     double currentTime = glfwGetTime();
     deltaTime = currentTime - lastTime;
@@ -50,6 +51,7 @@ void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames,
 void SendState(ENetPeer* peer){
     ClientStatePacket packet{};
     packet.type = PacketType::ClientState;
+    packet.state = myCar;
 
     ENetPacket* p = enet_packet_create(&packet,sizeof(packet),ENET_PACKET_FLAG_UNSEQUENCED);
 
@@ -177,7 +179,6 @@ int main(){
 
         while (enet_host_service(client, &event, 1) > 0) {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-
                 PacketType type = static_cast<PacketType>(event.packet->data[0]);
 
                 if (type == PacketType::Snapshot) {
@@ -186,17 +187,13 @@ int main(){
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
                         if (s.id == myCar.id) {
-                            float dx = s.x - myCar.x;
-                            float dz = s.z - myCar.z;
+                            float dx = s.x - myCar.x;float dz = s.z - myCar.z;
                             float distance = std::sqrt(dx * dx + dz * dz);
 
                             const float MAX_DESYNC = 2.0f; 
                             if (distance > MAX_DESYNC) {
-                                myCar.x = s.x;
-                                myCar.y = s.y;
-                                myCar.z = s.z;
-                                myCar.angle = s.angle;
-                                myCar.speed = s.speed;
+                                myCar.x = s.x; myCar.y = s.y; myCar.z = s.z;
+                                myCar.angle = s.angle; myCar.speed = s.speed;
                             }
                         }
                         else otherCars[s.id] = s;

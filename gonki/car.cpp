@@ -114,7 +114,7 @@ int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t
 void Car::drawAllCars(std::unordered_map<uint32_t, CarState>& allCars,Car& car) {
     for (auto& [id, state] : allCars) {
         glPushMatrix();
-        glTranslatef(state.x, 0.0f, state.y);
+        glTranslatef(state.x, 0.0f, state.z);
         glRotatef(state.angle * 57.2958f, 0, 1, 0);
         car.draw();
         glPopMatrix();
