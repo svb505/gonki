@@ -33,6 +33,21 @@ GUI gui;
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
 
+void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames, float& fps) {
+    double currentTime = glfwGetTime();
+    deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    fpsTimer += deltaTime;
+    frames++;
+
+    if (fpsTimer >= 1.0f) {
+        fps = frames / fpsTimer;
+        frames = 0;
+        fpsTimer = 0.0f;
+    }
+}
+
 void SendState(ENetPeer* peer){
     ClientStatePacket packet{};
     packet.type = PacketType::ClientState;
@@ -64,7 +79,6 @@ int main(){
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
-
     GLFWwindow* window = glfwCreateWindow(1500, 800, "3D Example", NULL, NULL);
     if (!window){
         std::cout << "Failed to create window\n";
@@ -82,16 +96,12 @@ int main(){
     address.port = 7777;
 
     ENetPeer* server = enet_host_connect(client, &address, 2, 0);
-
     ENetEvent event;
 
     if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
         std::cout << "Connected to server\n";
     }
-    else{
-        std::cout << "Connection failed\n";
-        return 1;
-    }
+    else { std::cout << "Connection failed\n"; return 1; }
 
     myCar.x = 0;
     myCar.y = 0;
@@ -102,7 +112,6 @@ int main(){
     bool readyToRace = false;
 
     glfwMakeContextCurrent(window);
-
     glEnable(GL_DEPTH_TEST);
 
     BuildFont();
@@ -111,11 +120,13 @@ int main(){
     glLoadIdentity();
     
     glFrustum(cam.left, cam.right, cam.bottom, cam.top, cam.nearPlane, cam.farPlane);
-
     glMatrixMode(GL_MODELVIEW);
 
     double lastTime = glfwGetTime();
     double deltaTime = 0.0;
+    float fpsTimer = 0.0f;
+    int frames = 0;
+    float fps = 0.0f;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -126,11 +137,8 @@ int main(){
 
     ImGui::StyleColorsDark();
 
-
     while (!glfwWindowShouldClose(window)){
-        double currentTime = glfwGetTime();
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
+        fpsCount(deltaTime, lastTime, fpsTimer, frames, fps);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
@@ -138,7 +146,7 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server);
+        gui.render(readyToRace,server,fps);
 
         ImGui::Render();
 
