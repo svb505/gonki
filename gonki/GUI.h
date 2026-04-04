@@ -5,6 +5,7 @@
 class GUI {
 public:
 	void render(bool ready, ENetPeer* server) {
+		float lossPercent = server->packetLoss / 65535.0f * 100.0f;
 		std::string pingStr = std::format("Ping: {} ms | Jitter: {}",server->roundTripTime, server->roundTripTimeVariance);
 
 		ImGui::Begin("Settings & Info");
@@ -12,6 +13,7 @@ public:
 		if (!ready) ImGui::Text("Waiting others players | Minimum 3 players");
 
 		ImGui::Text("%s",pingStr.c_str());
+		ImGui::Text("PL: %.1f", lossPercent);
 
 		ImGui::End();
 	}
