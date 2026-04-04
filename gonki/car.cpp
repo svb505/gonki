@@ -76,33 +76,6 @@ void Car::draw() {
 
     glPopMatrix();
 }
-void Car::drawHud(CarState& myCar, std::unordered_map<uint32_t, CarState>& otherCars,int totLaps, RaceResult& rank) {
-    int w, h;
-    glfwGetFramebufferSize(glfwGetCurrentContext(), &w, &h);
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, w, 0, h, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    int myPlace = rank.places[myCar.id];
-    
-    std::string hud = "Lap: " + std::to_string(myCar.lap + 1) + "/" + std::to_string(totLaps) +
-        " Place: " + std::to_string(myPlace) + "/" + std::to_string(rank.allCars.size());
-    std::string formatted_speed = std::format("Speed: {:.1f}", myCar.speed);
-
-    RenderTextHUD(20.0f, h - 40.0f, 1, 1, 1, formatted_speed.c_str(), w, h);
-    RenderTextHUD(10, 10, 1, 1, 1, hud.c_str(), 1500, 800);
-
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-}
 void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps) {
     int next = (car.lastCheckpoint + 1) % checkpoints.size();
     Vec2 cp = checkpoints[next].pos;

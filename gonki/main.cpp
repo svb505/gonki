@@ -47,7 +47,6 @@ void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames,
         fpsTimer = 0.0f;
     }
 }
-
 void SendState(ENetPeer* peer){
     ClientStatePacket packet{};
     packet.type = PacketType::ClientState;
@@ -138,6 +137,8 @@ int main(){
     ImGui::StyleColorsDark();
 
     while (!glfwWindowShouldClose(window)){
+        RaceResult rank = getRank(myCar, otherCars);
+
         fpsCount(deltaTime, lastTime, fpsTimer, frames, fps);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -146,7 +147,7 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps);
+        gui.render(readyToRace,server,fps,myCar,totalLaps,rank);
 
         ImGui::Render();
 
@@ -212,7 +213,6 @@ int main(){
                 enet_packet_destroy(event.packet);
             }
         }
-        RaceResult rank = getRank(myCar, otherCars);
 
         for (auto& [id, state] : otherCars) {
             int place = rank.places[id];
@@ -220,14 +220,8 @@ int main(){
             RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hudAll.c_str());
         }
 
-        glDisable(GL_DEPTH_TEST);
-
-        car.drawHud(myCar,otherCars,totalLaps, rank);
-
         if (readyToRace) processInput(window, deltaTime);
         
-        glEnable(GL_DEPTH_TEST);
-
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
