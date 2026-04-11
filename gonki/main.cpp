@@ -38,6 +38,7 @@ std::string myMes = "";
 std::vector<std::string> allMessages;
 bool sendChat = false;
 
+int count = 0;
 
 void SendChat(ENetPeer* peer) {
     ChatPacket p{};
@@ -96,7 +97,7 @@ int main(){
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
-    GLFWwindow* window = glfwCreateWindow(1500, 800, "3D Example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1500, 800, "Race", NULL, NULL);
     if (!window){
         std::cout << "Failed to create window\n";
         glfwTerminate();
@@ -165,7 +166,7 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,totalLaps,rank,allMessages,myMes,sendChat);
+        gui.render(readyToRace,server,fps,myCar,totalLaps,rank,allMessages,myMes,sendChat,count);
 
         ImGui::Render();
 
@@ -200,11 +201,6 @@ int main(){
 
         while (enet_host_service(client, &event, 1) > 0) {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-                if (event.packet->dataLength < sizeof(PacketType)) {
-                    enet_packet_destroy(event.packet);
-                    continue;
-                }
-
                 PacketType type = *(PacketType*)event.packet->data;
 
                 if (type == PacketType::Chat) {
@@ -213,13 +209,7 @@ int main(){
                 }
 
                 if (type == PacketType::Snapshot) {
-                    if (event.packet->dataLength < sizeof(SnapshotPacket)) {
-                        enet_packet_destroy(event.packet);
-                        continue;
-                    }
-
                     auto* snap = (SnapshotPacket*)event.packet->data;
-
 
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
@@ -241,7 +231,10 @@ int main(){
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
                     }
+
                     readyToRace = snap->count >= 3;
+
+                    count = snap->count;
                 }
 
                 enet_packet_destroy(event.packet);

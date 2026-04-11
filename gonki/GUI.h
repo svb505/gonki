@@ -9,7 +9,7 @@ private:
 	std::string message = "";
 public:
 	void render(bool ready, ENetPeer* server,float fps, CarState& myCar,int totLaps,RaceResult& rank,
-		std::vector<std::string>& allMessages, std::string& myMes,bool& sendChat) {
+		std::vector<std::string>& allMessages, std::string& myMes,bool& sendChat,int count) {
 		
 		int myPlace = rank.places[myCar.id];
 		std::string hud = std::format("Lap: {} / {}\nPlace: {} / {}", myCar.lap + 1, totLaps, myPlace, rank.allCars.size());
@@ -37,6 +37,8 @@ public:
 
 		ImGui::Text("%s",pingStr.c_str());
 		ImGui::Text("PL: %.1f", lossPercent);
+		ImGui::Dummy({ 0,10 });
+		ImGui::Text("count: %d", count);
 		ImGui::Dummy({ 0,10 });
 		ImGui::Text("FPS: %.0f", fps);
 		ImGui::Dummy({ 0,10 });
