@@ -1,11 +1,19 @@
 #pragma once
 #include <cstdint>
+#include <string>
+#include <cstring>
 
 constexpr int MAX_PLAYERS = 32;
 
 enum class PacketType : uint8_t{
     ClientState = 1,
-    Snapshot = 2
+    Snapshot = 2,
+    Chat = 3
+};
+
+struct ChatPacket {
+    PacketType type;
+    char msg[256];
 };
 
 struct CarState{
@@ -26,7 +34,7 @@ struct ClientStatePacket{
     CarState state;
 };
 
-struct SnapshotPacket{
+struct SnapshotPacket {
     PacketType type;
     uint32_t count;
     CarState cars[MAX_PLAYERS];

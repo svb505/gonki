@@ -24,6 +24,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GUI.h"
+#include <cstring>
 
 Camera cam;
 Car car;
@@ -33,7 +34,22 @@ GUI gui;
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
 
+std::string myMes = "";
+std::vector<std::string> allMessages;
+bool sendChat = false;
 
+
+void SendChat(ENetPeer* peer) {
+    ChatPacket p{};
+    p.type = PacketType::Chat;
+
+    strncpy_s(p.msg, sizeof(p.msg), myMes.c_str(), _TRUNCATE);
+
+    ENetPacket* packet = enet_packet_create(&p, sizeof(p), ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 1, packet);
+
+    myMes.clear();
+}
 void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames, float& fps) {
     double currentTime = glfwGetTime();
     deltaTime = currentTime - lastTime;
@@ -48,13 +64,13 @@ void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames,
         fpsTimer = 0.0f;
     }
 }
-void SendState(ENetPeer* peer){
+void SendState(ENetPeer* peer) {
     ClientStatePacket packet{};
+
     packet.type = PacketType::ClientState;
     packet.state = myCar;
 
-    ENetPacket* p = enet_packet_create(&packet,sizeof(packet),ENET_PACKET_FLAG_UNSEQUENCED);
-
+    ENetPacket* p = enet_packet_create(&packet, sizeof(packet), ENET_PACKET_FLAG_UNSEQUENCED);
     enet_peer_send(peer, 0, p);
 }
 void processInput(GLFWwindow* window,float dt){
@@ -149,9 +165,14 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,totalLaps,rank);
+        gui.render(readyToRace,server,fps,myCar,totalLaps,rank,allMessages,myMes,sendChat);
 
         ImGui::Render();
+
+        if (sendChat) {
+            SendChat(server);
+            sendChat = false;
+        }
 
         drawSky();
         cam.setupCamera(myCar);
@@ -179,10 +200,26 @@ int main(){
 
         while (enet_host_service(client, &event, 1) > 0) {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-                PacketType type = static_cast<PacketType>(event.packet->data[0]);
+                if (event.packet->dataLength < sizeof(PacketType)) {
+                    enet_packet_destroy(event.packet);
+                    continue;
+                }
+
+                PacketType type = *(PacketType*)event.packet->data;
+
+                if (type == PacketType::Chat) {
+                    auto* p = (ChatPacket*)event.packet->data;
+                    allMessages.emplace_back(p->msg);
+                }
 
                 if (type == PacketType::Snapshot) {
+                    if (event.packet->dataLength < sizeof(SnapshotPacket)) {
+                        enet_packet_destroy(event.packet);
+                        continue;
+                    }
+
                     auto* snap = (SnapshotPacket*)event.packet->data;
+
 
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
@@ -204,7 +241,7 @@ int main(){
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
                     }
-                    readyToRace = snap->count >= 1;
+                    readyToRace = snap->count >= 3;
                 }
 
                 enet_packet_destroy(event.packet);
