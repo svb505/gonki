@@ -8,12 +8,14 @@
 #include <iostream>
 #include <cmath>
 #include <enet/enet.h>
-#include "common.h"
 #include <algorithm>
 #include <unordered_map>
 #include <cstdint>
 #include <unordered_set>
 #include <string>
+#include <cstring>
+
+#include "common.h"
 #include "camera.h"
 #include "car.h"
 #include "text.h"
@@ -23,8 +25,12 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "server.h"
 #include "GUI.h"
-#include <cstring>
+#include "input.h"
+#include "variables.h"
+
+
 
 Camera cam;
 Car car;
@@ -36,21 +42,7 @@ std::unordered_map<uint32_t, CarState> otherCars;
 
 std::string myMes = "";
 std::vector<std::string> allMessages;
-bool sendChat = false;
 
-int count = 0;
-
-void SendChat(ENetPeer* peer) {
-    ChatPacket p{};
-    p.type = PacketType::Chat;
-
-    strncpy_s(p.msg, sizeof(p.msg), myMes.c_str(), _TRUNCATE);
-
-    ENetPacket* packet = enet_packet_create(&p, sizeof(p), ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(peer, 1, packet);
-
-    myMes.clear();
-}
 void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames, float& fps) {
     double currentTime = glfwGetTime();
     deltaTime = currentTime - lastTime;
@@ -65,40 +57,13 @@ void fpsCount(double& deltaTime, double& lastTime, float& fpsTimer, int& frames,
         fpsTimer = 0.0f;
     }
 }
-void SendState(ENetPeer* peer) {
-    ClientStatePacket packet{};
-
-    packet.type = PacketType::ClientState;
-    packet.state = myCar;
-
-    ENetPacket* p = enet_packet_create(&packet, sizeof(packet), ENET_PACKET_FLAG_UNSEQUENCED);
-    enet_peer_send(peer, 0, p);
-}
-void processInput(GLFWwindow* window,float dt){
-    float steerSpeed = 0.5f;
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) if (myCar.speed <= car.limitSpeed) myCar.speed += 5.0f * dt;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) if (myCar.speed > 0) myCar.speed -= 3.0f * dt;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) myCar.angle += steerSpeed * dt;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) myCar.angle -= steerSpeed * dt;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE && glfwGetKey(window, GLFW_KEY_D) == GLFW_RELEASE){
-        float returnSpeed = 4.0f * dt;
-
-        if (car.steering > 0.0f) car.steering = std::max(0.0f, car.steering - returnSpeed);
-        else car.steering = std::min(0.0f, car.steering + returnSpeed);
-    }
-
-    car.steering = std::clamp(car.steering, -car.maxSteering, car.maxSteering);
-}
-int main(){
-    if (!glfwInit()){
+int main() {
+    if (!glfwInit()) {
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
     GLFWwindow* window = glfwCreateWindow(1500, 800, "Race", NULL, NULL);
-    if (!window){
+    if (!window) {
         std::cout << "Failed to create window\n";
         glfwTerminate();
         return -1;
@@ -116,7 +81,7 @@ int main(){
     ENetPeer* server = enet_host_connect(client, &address, 2, 0);
     ENetEvent event;
 
-    if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT){
+    if (enet_host_service(client, &event, 5000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
         std::cout << "Connected to server\n";
     }
     else { std::cout << "Connection failed\n"; return 1; }
@@ -125,9 +90,6 @@ int main(){
     myCar.y = 0;
     myCar.speed = 0;
     myCar.angle = 0;
-
-    int totalLaps = 3;
-    bool readyToRace = false;
 
     glfwMakeContextCurrent(window);
     glEnable(GL_DEPTH_TEST);
@@ -146,14 +108,7 @@ int main(){
     int frames = 0;
     float fps = 0.0f;
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
-    ImGui::StyleColorsDark();
+    gui.setup(window);
 
     while (!glfwWindowShouldClose(window)){
         RaceResult rank = getRank(myCar, otherCars);
@@ -166,7 +121,7 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,totalLaps,rank,allMessages,myMes,sendChat,count);
+        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,allMessages,myMes,sendChat,count);
 
         ImGui::Render();
 
@@ -176,8 +131,11 @@ int main(){
         }
 
         drawSky();
+
         cam.setupCamera(myCar);
+
         drawGround(cam.cameraX,cam.cameraZ);
+
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-2.0f, -2.0f);
 
@@ -194,7 +152,9 @@ int main(){
         glPushMatrix();
         glTranslatef(myCar.x, myCar.y, myCar.z); 
         glRotatef(myCar.angle * 57.2958f, 0, 1, 0);
+        
         car.draw();
+
         glPopMatrix();
 
         SendState(server);
@@ -232,7 +192,7 @@ int main(){
                         else ++it;
                     }
 
-                    readyToRace = snap->count >= 3;
+                    readyToRace = snap->count >= MIN_PLAYERS;
 
                     count = snap->count;
                 }
@@ -247,7 +207,7 @@ int main(){
             RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hudAll.c_str());
         }
 
-        if (readyToRace) processInput(window, deltaTime);
+        if (readyToRace) processInput(window, car,myCar,deltaTime);
         
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

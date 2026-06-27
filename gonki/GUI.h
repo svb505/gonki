@@ -8,6 +8,16 @@ class GUI {
 private:
 	std::string message = "";
 public:
+	void setup(GLFWwindow* window) {
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 330");
+
+		ImGui::StyleColorsDark();
+	}
 	void render(bool ready, ENetPeer* server,float fps, CarState& myCar,int totLaps,RaceResult& rank,
 		std::vector<std::string>& allMessages, std::string& myMes,bool& sendChat,int count) {
 		

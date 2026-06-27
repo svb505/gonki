@@ -62,5 +62,14 @@
     <ClInclude Include="GUI.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="server.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="variables.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
