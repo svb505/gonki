@@ -13,7 +13,7 @@ void processInput(GLFWwindow* window, Car& car,CarState& carState,float dt) {
 
     if (isPressed(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 
-    if (isPressed(window, GLFW_KEY_W)) if (carState.speed <= car.limitSpeed)
+    if (isPressed(window, GLFW_KEY_W)) if (carState.speed <= car.getLimitSpeed())
         carState.speed += 5.0f * dt;
     if (isPressed(window, GLFW_KEY_S)) if (carState.speed > 0)
         carState.speed -= 3.0f * dt;
@@ -22,9 +22,11 @@ void processInput(GLFWwindow* window, Car& car,CarState& carState,float dt) {
     if (isReleased(window, GLFW_KEY_A) && isReleased(window, GLFW_KEY_D)) {
         float returnSpeed = 4.0f * dt;
 
-        if (car.steering > 0.0f) car.steering = std::max(0.0f, car.steering - returnSpeed);
-        else car.steering = std::min(0.0f, car.steering + returnSpeed);
+        if (car.getSteering() > 0.0f) car.setSteering(std::max(0.0f, 
+            car.getSteering() - returnSpeed));
+        else car.setSteering(std::min(0.0f, car.getSteering() + returnSpeed));
     }
 
-    car.steering = std::clamp(car.steering, -car.maxSteering, car.maxSteering);
+    car.setSteering(std::clamp(car.getSteering(), -car.getMaxSteering(),
+        car.getMaxSteering()));
 }

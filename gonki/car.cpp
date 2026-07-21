@@ -9,6 +9,20 @@
 #include <string>
 #include "rank.h"
 
+
+void Car::setSteering(float steering) {
+    this->steering = steering;
+}
+float Car::getLimitSpeed() {
+    return limitSpeed;
+}
+float Car::getMaxSteering() {
+    return maxSteering;
+}
+float Car::getSteering() {
+    return steering;
+}
+
 void Car::updatePos(float dt){
     if (fabs(speed) < 0.001f) return;
 

@@ -30,8 +30,6 @@
 #include "input.h"
 #include "variables.h"
 
-
-
 Camera cam;
 Car car;
 CarState myCar{};
@@ -86,10 +84,7 @@ int main() {
     }
     else { std::cout << "Connection failed\n"; return 1; }
 
-    myCar.x = 0;
-    myCar.y = 0;
-    myCar.speed = 0;
-    myCar.angle = 0;
+    myCar.setupCar();
 
     glfwMakeContextCurrent(window);
     glEnable(GL_DEPTH_TEST);
@@ -108,6 +103,8 @@ int main() {
     int frames = 0;
     float fps = 0.0f;
 
+    ChatContext chatContext = { allMessages,myMes,sendChat };
+
     gui.setup(window);
 
     while (!glfwWindowShouldClose(window)){
@@ -121,12 +118,12 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,allMessages,myMes,sendChat,count);
+        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,chatContext,count);
 
         ImGui::Render();
 
         if (sendChat) {
-            SendChat(server);
+            SendChat(server,myMes);
             sendChat = false;
         }
 
@@ -142,6 +139,7 @@ int main() {
         drawRoad();
 
         std::unordered_map<uint32_t, CarState> allCars = otherCars;
+        
         car.drawAllCars(allCars, car);
 
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -157,7 +155,7 @@ int main() {
 
         glPopMatrix();
 
-        SendState(server);
+        SendState(server,myCar);
 
         while (enet_host_service(client, &event, 1) > 0) {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
@@ -177,7 +175,8 @@ int main() {
                             float dx = s.x - myCar.x;float dz = s.z - myCar.z;
                             float distance = std::sqrt(dx * dx + dz * dz);
 
-                            const float MAX_DESYNC = 2.0f; 
+                            const float MAX_DESYNC = 2.0f;
+
                             if (distance > MAX_DESYNC) {
                                 myCar.x = s.x; myCar.y = s.y; myCar.z = s.z;
                                 myCar.angle = s.angle; myCar.speed = s.speed;
@@ -185,8 +184,12 @@ int main() {
                         }
                         else otherCars[s.id] = s;
                     }
+
                     std::unordered_set<uint32_t> ids;
-                    for (uint32_t i = 0; i < snap->count; i++) ids.insert(snap->cars[i].id);
+
+                    for (uint32_t i = 0; i < snap->count; i++) 
+                        ids.insert(snap->cars[i].id);
+
                     for (auto it = otherCars.begin(); it != otherCars.end(); ) {
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
@@ -203,7 +206,9 @@ int main() {
 
         for (auto& [id, state] : otherCars) {
             int place = rank.places[id];
+
             std::string hudAll = "Place: " + std::to_string(place) + "/" + std::to_string(rank.allCars.size());
+            
             RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hudAll.c_str());
         }
 
@@ -217,6 +222,7 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
     glfwDestroyWindow(window);
     glfwTerminate();
 

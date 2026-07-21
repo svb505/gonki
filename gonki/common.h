@@ -17,6 +17,11 @@ struct ChatPacket {
 };
 
 struct CarState{
+    void setupCar() {
+        x = 0; y = 0; z = 0;
+        speed = 0; angle = 0;
+    }
+
     uint32_t id;
     float x;
     float y;

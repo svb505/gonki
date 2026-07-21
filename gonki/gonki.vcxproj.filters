@@ -21,9 +21,6 @@
     <ClCompile Include="car.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="bot.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="text.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -39,9 +36,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="camera.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="bot.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="environnement.h">

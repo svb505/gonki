@@ -129,7 +129,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bot.cpp" />
     <ClCompile Include="car.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rank.cpp" />
@@ -137,7 +136,6 @@
     <ClCompile Include="text.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bot.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="car.h" />
     <ClInclude Include="common.h" />

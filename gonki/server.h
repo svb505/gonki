@@ -1,6 +1,8 @@
 #pragma once
 
-void SendChat(ENetPeer* peer) {
+
+
+void SendChat(ENetPeer* peer,std::string& myMes) {
     ChatPacket p{};
     p.type = PacketType::Chat;
 
@@ -11,7 +13,7 @@ void SendChat(ENetPeer* peer) {
 
     myMes.clear();
 }
-void SendState(ENetPeer* peer) {
+void SendState(ENetPeer* peer,CarState& myCar) {
     ClientStatePacket packet{};
 
     packet.type = PacketType::ClientState;
