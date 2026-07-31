@@ -7,7 +7,7 @@
 
 class GUI {
 private:
-	std::string message = "";
+	std::string chatMessage = "";
 public:
 	void setup(GLFWwindow* window) {
 		IMGUI_CHECKVERSION();
@@ -33,12 +33,12 @@ public:
 
 		if (!ready) ImGui::Text("Waiting others players | Minimum 3 players");
 
-		ImGui::InputText("Text", &message);
+		ImGui::InputText("Text", &chatMessage);
 
 		if (ImGui::Button("Send")) {
-			chatContext.myMes = message;
+			chatContext.myMes = chatMessage;
 			chatContext.sendChat = true;
-			message.clear();
+			chatMessage.clear();
 		}
 
 		ImGui::BeginChild("ListRegion", ImVec2(0, 200), true);
@@ -51,7 +51,7 @@ public:
 		ImGui::Text("PL: %.1f", lossPercent);
 		ImGui::Dummy({ 0,10 });
 
-		ImGui::Text("Car count: %d", carCount);
+		ImGui::Text("Cars count: %d", carCount);
 		ImGui::Dummy({ 0,10 });
 
 		ImGui::Text("FPS: %.0f", fps);

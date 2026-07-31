@@ -14,4 +14,4 @@ bool readyToRace = false;
 
 bool sendChat = false;
 
-int count = 0;
+int currentCarsCount = 0;

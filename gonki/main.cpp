@@ -118,7 +118,8 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,chatContext,count);
+        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,chatContext,
+            currentCarsCount);
 
         ImGui::Render();
 
@@ -144,6 +145,7 @@ int main() {
 
         glDisable(GL_POLYGON_OFFSET_FILL);
 
+        //Update the car withnout waiting server response
         myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
         myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
 
@@ -172,7 +174,7 @@ int main() {
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
                         if (s.id == myCar.id) {
-                            float dx = s.x - myCar.x;float dz = s.z - myCar.z;
+                            float dx = s.x - myCar.x; float dz = s.z - myCar.z;
                             float distance = std::sqrt(dx * dx + dz * dz);
 
                             const float MAX_DESYNC = 2.0f;
@@ -190,6 +192,7 @@ int main() {
                     for (uint32_t i = 0; i < snap->count; i++) 
                         ids.insert(snap->cars[i].id);
 
+                    //Deleting the cars who are disappeared from the server
                     for (auto it = otherCars.begin(); it != otherCars.end(); ) {
                         if (!ids.count(it->first)) it = otherCars.erase(it);
                         else ++it;
@@ -197,13 +200,14 @@ int main() {
 
                     readyToRace = snap->count >= MIN_PLAYERS;
 
-                    count = snap->count;
+                    currentCarsCount = snap->count;
                 }
 
                 enet_packet_destroy(event.packet);
             }
         }
 
+        //Updating others cars 
         for (auto& [id, state] : otherCars) {
             int place = rank.places[id];
 
