@@ -103,7 +103,7 @@ int main() {
     int frames = 0;
     float fps = 0.0f;
 
-    ChatContext chatContext = { allMessages,myMes,sendChat };
+    ChatContext chatContext = { allMessages,myMes };
 
     gui.setup(window);
 

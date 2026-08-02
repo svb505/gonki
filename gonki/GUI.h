@@ -33,11 +33,15 @@ public:
 
 		if (!ready) ImGui::Text("Waiting others players | Minimum 3 players");
 
+		ImGui::InputText("Enter your name", &userName);
+		ImGui::Dummy({ 0,10 });
 		ImGui::InputText("Text", &chatMessage);
 
 		if (ImGui::Button("Send")) {
 			chatContext.myMes = chatMessage;
-			chatContext.sendChat = true;
+
+			sendChat = true;
+
 			chatMessage.clear();
 		}
 

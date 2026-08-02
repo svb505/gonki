@@ -5,8 +5,9 @@
 struct ChatContext {
 	std::vector<std::string>& allMessages;
 	std::string& myMes;
-	bool& sendChat;
 };
+
+std::string userName = "";
 
 const int TOTAL_LAPS = 3;
 const int MIN_PLAYERS = 3;
