@@ -6,9 +6,9 @@ bool isPressed(GLFWwindow* window,int key) {
     return glfwGetKey(window, key) == GLFW_PRESS;
 }
 bool isReleased(GLFWwindow* window,int key) {
-    return glfwGetKey(window, key) == GLFW_PRESS;
+    return glfwGetKey(window, key) == GLFW_RELEASE;
 }
-void processInput(GLFWwindow* window, Car& car,CarState& carState,float dt) {
+void processInput(GLFWwindow* window, Car& car,CarState& carState,Camera& cam, float dt) {
     float steerSpeed = 0.5f;
 
     if (isPressed(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);

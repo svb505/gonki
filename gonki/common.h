@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <string>
 #include <cstring>
+#include "vec3.h"
 
 constexpr int MAX_PLAYERS = 32;
 
@@ -18,14 +19,14 @@ struct ChatPacket {
 
 struct CarState{
     void setupCar() {
-        x = 0; y = 0; z = 0;
+        pos.x = 0; pos.y = 0; pos.z = 0;
         speed = 0; angle = 0;
     }
 
     uint32_t id;
-    float x;
-    float y;
-    float z;
+
+    Vec3 pos;
+
     float speed;
     float angle;
 

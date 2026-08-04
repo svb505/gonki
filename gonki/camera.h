@@ -28,18 +28,18 @@ public:
         float forwardX = cos(car.angle);
         float forwardZ = -sin(car.angle);
 
-        float targetX = car.x - forwardX * camDistance;
-        float targetY = car.y + camHeight;
-        float targetZ = car.z - forwardZ * camDistance;
+        float targetX = car.pos.x - forwardX * camDistance;
+        float targetY = car.pos.y + camHeight;
+        float targetZ = car.pos.z - forwardZ * camDistance;
 
         float smooth = 0.15f;
         cameraX += (targetX - cameraX) * smooth;
         cameraY += (targetY - cameraY) * smooth;
         cameraZ += (targetZ - cameraZ) * smooth;
 
-        float lookX = car.x + forwardX * 5.0f;
-        float lookY = car.y + 1.0f;
-        float lookZ = car.z + forwardZ * 5.0f;
+        float lookX = car.pos.x + forwardX * 5.0f;
+        float lookY = car.pos.y + 1.0f;
+        float lookZ = car.pos.z + forwardZ * 5.0f;
 
         gluLookAt(
             cameraX, cameraY, cameraZ,

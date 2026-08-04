@@ -146,11 +146,11 @@ int main() {
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         //Update the car withnout waiting server response
-        myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
-        myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
+        myCar.pos.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
+        myCar.pos.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
 
         glPushMatrix();
-        glTranslatef(myCar.x, myCar.y, myCar.z); 
+        glTranslatef(myCar.pos.x, myCar.pos.y, myCar.pos.z);
         glRotatef(myCar.angle * 57.2958f, 0, 1, 0);
         
         car.draw();
@@ -174,13 +174,17 @@ int main() {
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
                         if (s.id == myCar.id) {
-                            float dx = s.x - myCar.x; float dz = s.z - myCar.z;
+                            float dx = s.pos.x - myCar.pos.x; 
+                            float dz = s.pos.z - myCar.pos.z;
+
                             float distance = std::sqrt(dx * dx + dz * dz);
 
                             const float MAX_DESYNC = 2.0f;
 
                             if (distance > MAX_DESYNC) {
-                                myCar.x = s.x; myCar.y = s.y; myCar.z = s.z;
+                                myCar.pos.x = s.pos.x; myCar.pos.y = s.pos.y; 
+                                myCar.pos.z = s.pos.z;
+
                                 myCar.angle = s.angle; myCar.speed = s.speed;
                             }
                         }
@@ -213,10 +217,12 @@ int main() {
 
             std::string hudAll = "Place: " + std::to_string(place) + "/" + std::to_string(rank.allCars.size());
             
-            RenderTextWorld(state.x, state.y + 2.5f, state.z, 1, 1, 1, hudAll.c_str());
+            RenderTextWorld(state.pos.x, state.pos.y + 2.5f, state.pos.z, 
+                1, 1, 1, hudAll.c_str());
         }
 
-        if (readyToRace) processInput(window, car,myCar,deltaTime);
+        //if (readyToRace) 
+        processInput(window, car,myCar, cam,deltaTime);
         
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

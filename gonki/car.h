@@ -4,14 +4,17 @@
 #include <vector>
 #include <unordered_map>
 #include "rank.h"
+#include "vec3.h"
 
 class Car {	
 private:
-	float positions[3] = { 10.0f,0.01f,0.0f };
+	Vec3 positions = { 10.0f,0.01f,0.0f };
 	float speed = 0.0f;
-	float rotation = 0.0f;
+	float rotation = 90.0f;
 	float steering = 0.0f;
 	float wheelBase = 2.5f;
+
+	float wheelAngle = 0.0f;
 
 	float maxSteering = 25.0f * 3.1415926f / 180.0f;;
 	float color[3] = { 0.0f,0.0f,0.0f };
@@ -24,7 +27,10 @@ public:
 	void setSteering(float steering);
 
 	void draw();
+	void drawCube();
+	void drawCylinder(float radius, float width, int segments);
 	void drawAllCars(std::unordered_map<uint32_t, CarState>& allCars, Car& car);
+	
 	void updatePos(float dt);
 	void updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps);
 	float computeRank(const CarState& car, int totalCheckpoints);

@@ -31,62 +31,313 @@ void Car::updatePos(float dt){
 
     rotation += angularVelocity * dt;
 
-    positions[0] += cos(rotation) * speed * dt;
-    positions[2] += -sin(rotation) * speed * dt;
+    positions.x += cos(rotation) * speed * dt;
+    positions.z += -sin(rotation) * speed * dt;
 }
-void Car::draw() {
-    float step = 0.6f;
+void Car::drawCylinder(float radius, float width, int segments) {
+    float half = width / 2.0f;
 
-    glPushMatrix();
+    glBegin(GL_QUAD_STRIP);
 
-    glTranslatef(positions[0], positions[1], positions[2]);
-    glRotatef(1, 0, 1, 0);
+    for (int i = 0; i <= segments; i++) {
+        float a = 2.0f * 3.1415926f * i / segments;
 
+        float y = cos(a) * radius;
+        float z = sin(a) * radius;
+
+
+        glVertex3f(-half, y, z);
+        glVertex3f(half, y, z);
+    }
+
+    glEnd();
+
+
+    glBegin(GL_TRIANGLE_FAN);
+
+    glVertex3f(-half, 0, 0);
+
+    for (int i = 0; i <= segments; i++) {
+        float a = 2.0f * 3.1415926f * i / segments;
+
+        glVertex3f(
+            -half,
+            cos(a) * radius,
+            sin(a) * radius
+        );
+    }
+
+    glEnd();
+
+
+    glBegin(GL_TRIANGLE_FAN);
+
+    glVertex3f(half, 0, 0);
+
+    for (int i = 0; i <= segments; i++) {
+        float a = 2.0f * 3.1415926f * i / segments;
+
+        glVertex3f(half, cos(a) * radius, sin(a) * radius);
+    }
+
+    glEnd();
+}
+void Car::drawCube() {
     glBegin(GL_QUADS);
 
     // Front
-    glColor3f(0, 1, 0);
-    glVertex3f(-1, -step, 1);
-    glVertex3f(1, -step, 1);
-    glVertex3f(1, step, 1);
-    glVertex3f(-1, step, 1);
+    glVertex3f(-1, -1, 1);
+    glVertex3f(1, -1, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(-1, 1, 1);
 
     // Back
-    glColor3f(0, 1, 0);
-    glVertex3f(1, -step, -1);
-    glVertex3f(-1, step, -1);
-    glVertex3f(1, step, -1);
-    glVertex3f(1, -step, -1);
+    glVertex3f(-1, -1, -1);
+    glVertex3f(-1, 1, -1);
+    glVertex3f(1, 1, -1);
+    glVertex3f(1, -1, -1);
 
     // Left
-    glColor3f(0, 1, 0.7);
-    glVertex3f(-1, -step, -1);
-    glVertex3f(-1, -step, 1);
-    glVertex3f(-1, step, 1);
-    glVertex3f(-1, step, -1);
+    glVertex3f(-1, -1, -1);
+    glVertex3f(-1, -1, 1);
+    glVertex3f(-1, 1, 1);
+    glVertex3f(-1, 1, -1);
 
     // Right
-    glColor3f(0, 1, 0.7);
-    glVertex3f(1, -step, -1);
-    glVertex3f(1, step, -1);
-    glVertex3f(1, step, 1);
-    glVertex3f(1, -step, 1);
+    glVertex3f(1, -1, -1);
+    glVertex3f(1, 1, -1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(1, -1, 1);
 
     // Top
-    glColor3f(0, 1, 0);
-    glVertex3f(-1, step, -1);
-    glVertex3f(-1, step, 1);
-    glVertex3f(1, step, 1);
-    glVertex3f(1, step, -1);
+    glVertex3f(-1, 1, -1);
+    glVertex3f(-1, 1, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(1, 1, -1);
 
     // Bottom
-    glColor3f(0, 1, 0);
-    glVertex3f(-1, -step, -1);
-    glVertex3f(1, -step, -1);
-    glVertex3f(1, -step, 1);
-    glVertex3f(-1, -step, 1);
+    glVertex3f(-1, -1, -1);
+    glVertex3f(1, -1, -1);
+    glVertex3f(1, -1, 1);
+    glVertex3f(-1, -1, 1);
 
     glEnd();
+}
+void Car::draw() {
+    glPushMatrix();
+
+    glTranslatef(positions.x, positions.y, positions.z);
+    glRotatef(rotation, 0, 1, 0);
+
+    // Body
+    glPushMatrix();
+
+    glScalef(2.5f, 0.35f, 1.5f);
+
+    glColor3f(0.0f, 0.7f, 0.1f);
+
+    glBegin(GL_QUADS);
+
+    // front
+    glVertex3f(-1, -1, 1);
+    glVertex3f(1, -1, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(-1, 1, 1);
+
+    // back
+    glVertex3f(-1, -1, -1);
+    glVertex3f(-1, 1, -1);
+    glVertex3f(1, 1, -1);
+    glVertex3f(1, -1, -1);
+
+    // left
+    glVertex3f(-1, -1, -1);
+    glVertex3f(-1, -1, 1);
+    glVertex3f(-1, 1, 1);
+    glVertex3f(-1, 1, -1);
+
+    // right
+    glVertex3f(1, -1, -1);
+    glVertex3f(1, 1, -1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(1, -1, 1);
+
+    // top
+    glVertex3f(-1, 1, -1);
+    glVertex3f(-1, 1, 1);
+    glVertex3f(1, 1, 1);
+    glVertex3f(1, 1, -1);
+
+    // bottom
+    glVertex3f(-1, -1, -1);
+    glVertex3f(1, -1, -1);
+    glVertex3f(1, -1, 1);
+    glVertex3f(-1, -1, 1);
+
+    glEnd();
+
+    glPopMatrix();
+
+
+    // Cabine
+    glPushMatrix();
+
+    glTranslatef(0, 0.55f, -0.2f);
+
+    glColor3f(0.08f, 0.08f, 0.12f);
+
+    glBegin(GL_QUADS);
+
+
+    // front windshield
+    glVertex3f(-1.2f, 0, 0.7f);
+    glVertex3f(1.2f, 0, 0.7f);
+    glVertex3f(1.2f, 1.0f, 0.3f);
+    glVertex3f(-1.2f, 1.0f, 0.3f);
+
+
+    // roof
+    glVertex3f(-1.2f, 1.0f, 0.3f);
+    glVertex3f(1.2f, 1.0f, 0.3f);
+    glVertex3f(1.0f, 1.0f, -0.8f);
+    glVertex3f(-1.0f, 1.0f, -0.8f);
+
+
+    // rear window
+    glVertex3f(-1.0f, 1.0f, -0.8f);
+    glVertex3f(1.0f, 1.0f, -0.8f);
+    glVertex3f(1.2f, 0, -0.8f);
+    glVertex3f(-1.2f, 0, -0.8f);
+
+
+    // left
+    glVertex3f(-1.2f, 0, 0.7f);
+    glVertex3f(-1.2f, 1.0f, 0.3f);
+    glVertex3f(-1.0f, 1.0f, -0.8f);
+    glVertex3f(-1.2f, 0, -0.8f);
+
+
+    // right
+    glVertex3f(1.2f, 0, 0.7f);
+    glVertex3f(1.2f, 0, -0.8f);
+    glVertex3f(1.0f, 1.0f, -0.8f);
+    glVertex3f(1.2f, 1.0f, 0.3f);
+
+
+    glEnd();
+
+    glPopMatrix();
+
+
+    // Bumpers
+    glPushMatrix();
+
+    glTranslatef(0.0f, -0.25f, 1.52f);
+
+    glScalef(2.3f, 0.12f, 0.06f);
+
+    glColor3f(0.05f, 0.05f, 0.05f);
+
+    drawCube();
+
+    glPopMatrix();
+
+    glPushMatrix();
+
+    glTranslatef(0.0f, -0.25f, -1.52f);
+
+    glScalef(2.3f, 0.12f, 0.06f);
+
+    glColor3f(0.05f, 0.05f, 0.05f);
+
+    drawCube();
+
+    glPopMatrix();
+
+
+    // Headlights
+    glPushMatrix();
+
+    glTranslatef(-1.7f, 0.0f, 1.52f);
+
+    glScalef(0.15f, 0.1f, 0.05f);
+
+    glColor3f(1.0f, 1.0f, 0.85f);
+
+    drawCube();
+
+    glPopMatrix();
+
+    glPushMatrix();
+
+    glTranslatef(1.7f, 0.0f, 1.52f);
+
+    glScalef(0.15f, 0.1f, 0.05f);
+
+    glColor3f(1.0f, 1.0f, 0.85f);
+
+    drawCube();
+
+    glPopMatrix();
+
+
+    // Taillights
+    glPushMatrix();
+
+    glTranslatef(-1.7f, 0.0f, -1.52f);
+
+    glScalef(0.15f, 0.1f, 0.05f);
+
+    glColor3f(0.8f, 0.05f, 0.05f);
+
+    drawCube();
+
+    glPopMatrix();
+
+    glPushMatrix();
+
+    glTranslatef(1.7f, 0.0f, -1.52f);
+
+    glScalef(0.15f, 0.1f, 0.05f);
+
+    glColor3f(0.8f, 0.05f, 0.05f);
+
+    drawCube();
+
+    glPopMatrix();
+
+
+    // Wheels
+    auto drawWheel = [&](float x, float z, bool front) {
+        glPushMatrix();
+
+        glTranslatef(x, -0.55f, z);
+
+
+        if (front) glRotatef(wheelAngle, 0, 1, 0);
+
+        glRotatef(90, 0, 1, 0);
+
+        glColor3f(0.02f, 0.02f, 0.02f);
+
+        drawCylinder(0.45f, 0.35f, 32);
+
+        glColor3f(0.75f, 0.75f, 0.75f);
+
+        drawCylinder(0.22f, 0.37f, 24);
+
+        glPopMatrix();
+        };
+
+
+    // front wheels
+    drawWheel(-2.2f, 0.9f, true);
+    drawWheel(2.2f, 0.9f, true);
+
+
+    // back wheels
+    drawWheel(-2.2f, -0.9f, false);
+    drawWheel(2.2f, -0.9f, false);
 
     glPopMatrix();
 }
@@ -94,8 +345,8 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
     int next = (car.lastCheckpoint + 1) % checkpoints.size();
     Vec2 cp = checkpoints[next].pos;
 
-    float dx = car.x - cp.x;
-    float dz = car.z - cp.y; 
+    float dx = car.pos.x - cp.x;
+    float dz = car.pos.z - cp.y;
     float dist = std::sqrt(dx * dx + dz * dz);
 
     if (dist < checkpoints[next].radius) {
@@ -108,7 +359,7 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
 
     Vec2 cpNext = checkpoints[(next + 1) % checkpoints.size()].pos;
     Vec2 dir = { cpNext.x - cp.x, cpNext.y - cp.y };
-    Vec2 toCar = { car.x - cp.x, car.z - cp.y };
+    Vec2 toCar = { car.pos.x - cp.x, car.pos.z - cp.y };
     float lenDir = std::sqrt(dir.x * dir.x + dir.y * dir.y);
 
     car.progress = ((toCar.x * dir.x + toCar.y * dir.y) / (lenDir * lenDir));
@@ -128,7 +379,7 @@ int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t
 void Car::drawAllCars(std::unordered_map<uint32_t, CarState>& allCars,Car& car) {
     for (auto& [id, state] : allCars) {
         glPushMatrix();
-        glTranslatef(state.x, 0.0f, state.z);
+        glTranslatef(state.pos.x, 0.0f, state.pos.z);
         glRotatef(state.angle * 57.2958f, 0, 1, 0);
         car.draw();
         glPopMatrix();

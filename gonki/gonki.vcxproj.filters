@@ -65,5 +65,8 @@
     <ClInclude Include="variables.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="vec3.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
