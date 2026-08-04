@@ -107,6 +107,8 @@ int main() {
 
     gui.setup(window);
 
+    float drag = 5.0f; // brake force
+
     while (!glfwWindowShouldClose(window)){
         RaceResult rank = getRank(myCar, otherCars);
 
@@ -146,11 +148,20 @@ int main() {
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         //Update the car withnout waiting server response
-        myCar.pos.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
-        myCar.pos.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
+
+        if (myCar.speed > 0.0f){
+            myCar.speed -= drag * deltaTime;
+            myCar.speed = std::max(0.0f, myCar.speed);
+        }
+
+        myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
+        myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
+            
+        if (myCar.lap == TOTAL_LAPS) readyToRace = false;
+       
 
         glPushMatrix();
-        glTranslatef(myCar.pos.x, myCar.pos.y, myCar.pos.z);
+        glTranslatef(myCar.x, myCar.y, myCar.z);
         glRotatef(myCar.angle * 57.2958f, 0, 1, 0);
         
         car.draw();
@@ -163,6 +174,12 @@ int main() {
             if (event.type == ENET_EVENT_TYPE_RECEIVE) {
                 PacketType type = *(PacketType*)event.packet->data;
 
+                if (type == PacketType::ClientState) {
+                    auto* init = (ClientStatePacket*)event.packet->data;
+
+                    if (myCar.id == 0) myCar = init->state;
+                }
+
                 if (type == PacketType::Chat) {
                     auto* p = (ChatPacket*)event.packet->data;
                     allMessages.emplace_back(p->msg);
@@ -173,20 +190,23 @@ int main() {
 
                     for (uint32_t i = 0; i < snap->count; i++) {
                         CarState& s = snap->cars[i];
-                        if (s.id == myCar.id) {
-                            float dx = s.pos.x - myCar.pos.x; 
-                            float dz = s.pos.z - myCar.pos.z;
+                        if (s.id == myCar.id){
+                            float dx = s.x - myCar.x;
+                            float dz = s.z - myCar.z;
 
                             float distance = std::sqrt(dx * dx + dz * dz);
 
                             const float MAX_DESYNC = 2.0f;
 
                             if (distance > MAX_DESYNC) {
-                                myCar.pos.x = s.pos.x; myCar.pos.y = s.pos.y; 
-                                myCar.pos.z = s.pos.z;
-
-                                myCar.angle = s.angle; myCar.speed = s.speed;
+                                myCar.x = s.x;
+                                myCar.y = s.y;
+                                myCar.z = s.z;
                             }
+
+                            myCar.angle = s.angle;
+                            myCar.speed = s.speed;
+                            myCar.lap = s.lap;
                         }
                         else otherCars[s.id] = s;
                     }
@@ -217,12 +237,11 @@ int main() {
 
             std::string hudAll = "Place: " + std::to_string(place) + "/" + std::to_string(rank.allCars.size());
             
-            RenderTextWorld(state.pos.x, state.pos.y + 2.5f, state.pos.z, 
+            RenderTextWorld(state.x, state.y + 2.5f, state.z, 
                 1, 1, 1, hudAll.c_str());
         }
 
-        //if (readyToRace) 
-        processInput(window, car,myCar, cam,deltaTime);
+        if (readyToRace && myCar.lap < TOTAL_LAPS) processInput(window, car, myCar, deltaTime);
         
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

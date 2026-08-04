@@ -25,7 +25,7 @@ public:
 		int myPlace = rank.places[myCar.id];
 		float lossPercent = server->packetLoss / 65535.0f * 100.0f;
 
-		std::string hud = std::format("Lap: {} / {}\nPlace: {} / {}", myCar.lap + 1, totLaps, myPlace, rank.allCars.size());
+		std::string hud = std::format("Lap: {} / {}\nPlace: {} / {}", myCar.lap, totLaps, myPlace, rank.allCars.size());
 		std::string f_speed = std::format("Speed: {:.1f}", myCar.speed);
 		std::string pingStr = std::format("Ping: {} ms | Jitter: {}",server->roundTripTime, server->roundTripTimeVariance);
 

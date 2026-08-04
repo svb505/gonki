@@ -9,7 +9,9 @@
 #include <string>
 #include "rank.h"
 
-
+const float Car::getReductionCoef() {
+    return reductionCoef;
+}
 void Car::setSteering(float steering) {
     this->steering = steering;
 }
@@ -345,8 +347,8 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
     int next = (car.lastCheckpoint + 1) % checkpoints.size();
     Vec2 cp = checkpoints[next].pos;
 
-    float dx = car.pos.x - cp.x;
-    float dz = car.pos.z - cp.y;
+    float dx = car.x - cp.x;
+    float dz = car.z - cp.y;
     float dist = std::sqrt(dx * dx + dz * dz);
 
     if (dist < checkpoints[next].radius) {
@@ -359,7 +361,7 @@ void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoin
 
     Vec2 cpNext = checkpoints[(next + 1) % checkpoints.size()].pos;
     Vec2 dir = { cpNext.x - cp.x, cpNext.y - cp.y };
-    Vec2 toCar = { car.pos.x - cp.x, car.pos.z - cp.y };
+    Vec2 toCar = { car.x - cp.x, car.z - cp.y };
     float lenDir = std::sqrt(dir.x * dir.x + dir.y * dir.y);
 
     car.progress = ((toCar.x * dir.x + toCar.y * dir.y) / (lenDir * lenDir));
@@ -379,7 +381,7 @@ int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t
 void Car::drawAllCars(std::unordered_map<uint32_t, CarState>& allCars,Car& car) {
     for (auto& [id, state] : allCars) {
         glPushMatrix();
-        glTranslatef(state.pos.x, 0.0f, state.pos.z);
+        glTranslatef(state.x, 0.0f, state.z);
         glRotatef(state.angle * 57.2958f, 0, 1, 0);
         car.draw();
         glPopMatrix();

@@ -14,6 +14,8 @@ private:
 	float steering = 0.0f;
 	float wheelBase = 2.5f;
 
+	const float reductionCoef = 0.997f;
+
 	float wheelAngle = 0.0f;
 
 	float maxSteering = 25.0f * 3.1415926f / 180.0f;;
@@ -23,6 +25,7 @@ public:
 	float getLimitSpeed();
 	float getMaxSteering();
 	float getSteering();
+	const float getReductionCoef();
 
 	void setSteering(float steering);
 

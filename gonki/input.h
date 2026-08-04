@@ -8,15 +8,15 @@ bool isPressed(GLFWwindow* window,int key) {
 bool isReleased(GLFWwindow* window,int key) {
     return glfwGetKey(window, key) == GLFW_RELEASE;
 }
-void processInput(GLFWwindow* window, Car& car,CarState& carState,Camera& cam, float dt) {
+void processInput(GLFWwindow* window, Car& car,CarState& carState,float dt) {
     float steerSpeed = 0.5f;
 
     if (isPressed(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 
     if (isPressed(window, GLFW_KEY_W)) if (carState.speed <= car.getLimitSpeed())
-        carState.speed += 5.0f * dt;
+        carState.speed += 35.0f * dt;
     if (isPressed(window, GLFW_KEY_S)) if (carState.speed > 0)
-        carState.speed -= 3.0f * dt;
+        carState.speed -= 23.0f * dt;
     if (isPressed(window, GLFW_KEY_A)) carState.angle += steerSpeed * dt;
     if (isPressed(window, GLFW_KEY_D)) carState.angle -= steerSpeed * dt;
     if (isReleased(window, GLFW_KEY_A) && isReleased(window, GLFW_KEY_D)) {

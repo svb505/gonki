@@ -19,13 +19,15 @@ struct ChatPacket {
 
 struct CarState{
     void setupCar() {
-        pos.x = 0; pos.y = 0; pos.z = 0;
+        x = 10; y = 0; z = 0;
         speed = 0; angle = 0;
     }
 
     uint32_t id;
 
-    Vec3 pos;
+    float x;
+    float y;
+    float z;
 
     float speed;
     float angle;

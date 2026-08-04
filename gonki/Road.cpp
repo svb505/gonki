@@ -2,14 +2,14 @@
 #include <windows.h>
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
+#include "text.h"
+#include <format>
 
 std::vector<Checkpoint> checkpoints = {
     { {35, 0}, 10.0f },
     { {95, 0}, 10.0f },
-    { {95, 35}, 10.0f },
     { {130, 35}, 10.0f },
     { {130, 95}, 10.0f },
-    { {95, 95}, 10.0f },
     { {35, 130}, 10.0f },
     { {0, 95}, 10.0f },
     { {0, 35}, 10.0f }
@@ -76,6 +76,14 @@ void drawCheckPoints() {
     glColor3f(1.0f, 0.0f, 0.0f);
 
     const int segments = 32;
+
+    glPointSize(8);
+    glBegin(GL_POINTS);
+
+    for (const auto& cp : checkpoints)
+        glVertex3f(cp.pos.x, 0.5f, cp.pos.y);
+
+    glEnd();
 
     for (const auto& cp : checkpoints) {
         glBegin(GL_LINE_LOOP); 
