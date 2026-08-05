@@ -142,6 +142,7 @@
     <ClInclude Include="environnement.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="lightning.h" />
     <ClInclude Include="rank.h" />
     <ClInclude Include="Road.h" />
     <ClInclude Include="server.h" />

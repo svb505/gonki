@@ -68,5 +68,8 @@
     <ClInclude Include="vec3.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="lightning.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

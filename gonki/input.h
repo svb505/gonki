@@ -14,9 +14,9 @@ void processInput(GLFWwindow* window, Car& car,CarState& carState,float dt) {
     if (isPressed(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 
     if (isPressed(window, GLFW_KEY_W)) if (carState.speed <= car.getLimitSpeed())
-        carState.speed += 35.0f * dt;
+        carState.speed += 25.0f * dt;
     if (isPressed(window, GLFW_KEY_S)) if (carState.speed > 0)
-        carState.speed -= 23.0f * dt;
+        carState.speed -= 17.0f * dt;
     if (isPressed(window, GLFW_KEY_A)) carState.angle += steerSpeed * dt;
     if (isPressed(window, GLFW_KEY_D)) carState.angle -= steerSpeed * dt;
     if (isReleased(window, GLFW_KEY_A) && isReleased(window, GLFW_KEY_D)) {

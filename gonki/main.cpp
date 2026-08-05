@@ -1,3 +1,8 @@
+#ifndef GL_MULTISAMPLE
+#define GL_MULTISAMPLE 0x809D
+#endif
+
+
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -60,6 +65,8 @@ int main() {
         std::cout << "Failed to initialize GLFW\n";
         return -1;
     }
+
+    glfwWindowHint(GLFW_SAMPLES, 16);
     GLFWwindow* window = glfwCreateWindow(1500, 800, "Race", NULL, NULL);
     if (!window) {
         std::cout << "Failed to create window\n";
