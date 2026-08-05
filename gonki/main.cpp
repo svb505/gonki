@@ -35,11 +35,13 @@
 #include "variables.h"
 #include "lightning.h"
 #include "database.h"
+#include "timer.h"
 
 Camera cam;
 Car car;
 CarState myCar{};
 GUI gui;
+Timer timer;
 
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
@@ -116,10 +118,13 @@ int main() {
 
     initLighting();
     gui.setup(window);
+    timer.start();
 
     float drag = 5.0f; // brake force
 
     if (!dbIsExists()) createDb();
+
+    openDatabase();
 
     while (!glfwWindowShouldClose(window)){
         RaceResult rank = getRank(myCar, otherCars);
@@ -132,8 +137,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(readyToRace,server,fps,myCar,TOTAL_LAPS,rank,chatContext,
-            currentCarsCount);
+        gui.render(server,fps,myCar,timer,rank,chatContext,currentCarsCount);
 
         ImGui::Render();
 
@@ -168,9 +172,12 @@ int main() {
         myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
         myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
             
-        if (myCar.lap == TOTAL_LAPS) {
+        if (myCar.lap == TOTAL_LAPS && readyToRace) {
             readyToRace = false;
-            //saveDataForPlayer();
+
+            timer.stop();
+
+            saveDataForPlayer(timer.getCurrentTime());
         }
        
 

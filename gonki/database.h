@@ -11,6 +11,7 @@ struct PlayerContext {
 };
 extern sqlite3* db;
 
+bool openDatabase();
 int callbackPlayer(void* data, int argc, char** argv, char** colName);
 void createDb(const std::string name = "playerInfo.db");
 bool dbIsExists();

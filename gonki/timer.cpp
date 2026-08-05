@@ -1,14 +1,21 @@
-#include <GL/gl.h>
+#include <windows.h>
 #include <GLFW/glfw3.h>
 #include "timer.h"
 
 void Timer::start() {
-	isStarted = true;
+    isStarted = true;
 
-	if (isStarted) currentTime = glfwGetTime();
+    startTime = glfwGetTime();
 }
-void Timer::stop() {
-	isStarted = false;
 
-	finalTime = currentTime;
+float Timer::getCurrentTime() {
+    if (!isStarted)
+        return finalTime;
+
+    return glfwGetTime() - startTime;
+}
+
+void Timer::stop() {
+    finalTime = glfwGetTime() - startTime;
+    isStarted = false;
 }

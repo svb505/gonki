@@ -4,6 +4,7 @@
 #include <vector>
 #include <imgui_stdlib.h>
 #include "variables.h"
+#include "timer.h"
 
 class GUI {
 private:
@@ -19,19 +20,22 @@ public:
 
 		ImGui::StyleColorsDark();
 	}
-	void render(bool ready, ENetPeer* server,float fps, CarState& myCar,int totLaps,RaceResult& rank,
-		ChatContext& chatContext,int carCount) {
+	void render(ENetPeer* server, float fps, CarState& myCar, Timer& timer, 
+		RaceResult& rank, ChatContext& chatContext,int carCount) {
 		
 		int myPlace = rank.places[myCar.id];
 		float lossPercent = server->packetLoss / 65535.0f * 100.0f;
 
-		std::string hud = std::format("Lap: {} / {}\nPlace: {} / {}", myCar.lap, totLaps, myPlace, rank.allCars.size());
+		std::string hud = std::format("Lap: {} / {}\nPlace: {} / {}", 
+			myCar.lap, TOTAL_LAPS, myPlace, rank.allCars.size());
+
 		std::string f_speed = std::format("Speed: {:.1f}", myCar.speed);
-		std::string pingStr = std::format("Ping: {} ms | Jitter: {}",server->roundTripTime, server->roundTripTimeVariance);
+		std::string pingStr = std::format("Ping: {} ms | Jitter: {}",server->roundTripTime,
+			server->roundTripTimeVariance);
 
 		ImGui::Begin("Settings & Info");
 
-		if (!ready) ImGui::Text("Waiting others players | Minimum 3 players");
+		if (!readyToRace) ImGui::Text("Waiting others players | Minimum 3 players");
 
 		ImGui::InputText("Enter your name", &userName);
 		ImGui::Dummy({ 0,10 });
@@ -59,6 +63,9 @@ public:
 		ImGui::Dummy({ 0,10 });
 
 		ImGui::Text("FPS: %.0f", fps);
+		ImGui::Dummy({ 0,10 });
+
+		ImGui::TextColored(ImVec4(1,0,0,1),"Time: %.1f", timer.getCurrentTime());
 		ImGui::Dummy({ 0,10 });
 
 		ImGui::Text("%s", f_speed.c_str());

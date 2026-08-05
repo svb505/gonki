@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <vector>
 #include <string>
+#include <iostream>
 
 sqlite3* db;
 
@@ -17,6 +18,9 @@ int callbackPlayer(void* data, int argc, char** argv, char** colName) {
 }
 bool dbIsExists() {
 	return std::filesystem::exists("playerInfo.db");
+}
+bool openDatabase(){
+	return sqlite3_open("playerInfo.db", &db) == SQLITE_OK;
 }
 void createDb(const std::string name) {
 	std::string createQuery;
@@ -44,24 +48,18 @@ void createDb(const std::string name) {
 PlayerInfo getDataForPlayer() {
 	PlayerContext ctx;
 
-	if (sqlite3_open("playerInfo.db", &db) != SQLITE_OK) return ctx.players[0]; 
-	else {
-		char* err;
+	char* err;
 
-		sqlite3_exec(db, "SELECT * FROM player", callbackPlayer, &ctx, &err);
-		sqlite3_close(db);
+	sqlite3_exec(db, "SELECT * FROM player", callbackPlayer, &ctx, &err);
 
-		return ctx.players[0];
-	}
+	return ctx.players[0];
 }
 void saveDataForPlayer(float time) {
-	if (sqlite3_open("playerInfo.db", &db) != SQLITE_OK) return;
-
-	char* sql = nullptr;
+	char* sql = nullptr;	
 
 	PlayerInfo player = getDataForPlayer();
 
-	if (player.best == 0.0f && player.worst == 0.0f) {
+	if ((float)player.best == 0.0f && (float)player.worst == 0.0f) {
 		sql = sqlite3_mprintf("UPDATE player SET best = %f, worst = %f WHERE id = 0;", time, time);
 	}
 	else if (time < player.best) sql = sqlite3_mprintf("UPDATE player SET best = %f WHERE id = 0;", time);
@@ -69,10 +67,9 @@ void saveDataForPlayer(float time) {
 
 	char* err = nullptr;
 
-	sqlite3_exec(db, sql, nullptr, nullptr, &err);
+	if (sql != nullptr) sqlite3_exec(db, sql, nullptr, nullptr, &err);
+	
 	sqlite3_free(sql);
-
-	sqlite3_close(db);
 }
 
 
