@@ -30,6 +30,12 @@
     <ClCompile Include="rank.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="database.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="car.h">
@@ -69,6 +75,12 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="lightning.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="database.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

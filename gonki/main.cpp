@@ -2,7 +2,6 @@
 #define GL_MULTISAMPLE 0x809D
 #endif
 
-
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -34,6 +33,8 @@
 #include "GUI.h"
 #include "input.h"
 #include "variables.h"
+#include "lightning.h"
+#include "database.h"
 
 Camera cam;
 Car car;
@@ -103,6 +104,7 @@ int main() {
     
     glFrustum(cam.left, cam.right, cam.bottom, cam.top, cam.nearPlane, cam.farPlane);
     glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_DEPTH_TEST);
 
     double lastTime = glfwGetTime();
     double deltaTime = 0.0;
@@ -112,9 +114,12 @@ int main() {
 
     ChatContext chatContext = { allMessages,myMes };
 
+    initLighting();
     gui.setup(window);
 
     float drag = 5.0f; // brake force
+
+    if (!dbIsExists()) createDb();
 
     while (!glfwWindowShouldClose(window)){
         RaceResult rank = getRank(myCar, otherCars);
@@ -155,7 +160,6 @@ int main() {
         glDisable(GL_POLYGON_OFFSET_FILL);
 
         //Update the car withnout waiting server response
-
         if (myCar.speed > 0.0f){
             myCar.speed -= drag * deltaTime;
             myCar.speed = std::max(0.0f, myCar.speed);
@@ -164,7 +168,10 @@ int main() {
         myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
         myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
             
-        if (myCar.lap == TOTAL_LAPS) readyToRace = false;
+        if (myCar.lap == TOTAL_LAPS) {
+            readyToRace = false;
+            //saveDataForPlayer();
+        }
        
 
         glPushMatrix();

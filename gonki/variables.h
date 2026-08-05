@@ -10,7 +10,7 @@ struct ChatContext {
 std::string userName = "";
 
 const int TOTAL_LAPS = 3;
-const int MIN_PLAYERS = 3;
+const int MIN_PLAYERS = 1;
 bool readyToRace = false;
 
 bool sendChat = false;

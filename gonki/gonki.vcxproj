@@ -130,15 +130,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="car.cpp" />
+    <ClCompile Include="database.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rank.cpp" />
     <ClCompile Include="Road.cpp" />
     <ClCompile Include="text.cpp" />
+    <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="car.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="database.h" />
     <ClInclude Include="environnement.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="input.h" />
@@ -147,6 +150,7 @@
     <ClInclude Include="Road.h" />
     <ClInclude Include="server.h" />
     <ClInclude Include="text.h" />
+    <ClInclude Include="timer.h" />
     <ClInclude Include="variables.h" />
     <ClInclude Include="vec3.h" />
   </ItemGroup>
