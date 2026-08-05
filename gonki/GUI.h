@@ -5,10 +5,13 @@
 #include <imgui_stdlib.h>
 #include "variables.h"
 #include "timer.h"
+#include "database.h"
 
 class GUI {
 private:
 	std::string chatMessage = "";
+
+	bool statistickWindow = false;
 public:
 	void setup(GLFWwindow* window) {
 		IMGUI_CHECKVERSION();
@@ -20,9 +23,24 @@ public:
 
 		ImGui::StyleColorsDark();
 	}
-	void render(ENetPeer* server, float fps, CarState& myCar, Timer& timer, 
+	void renderStatistickWin() {
+		ImGui::Begin("Statistick");
+
+		PlayerInfo info = getDataForPlayer();
+		if (!dbIsExists()) ImGui::Text("DB is not exists");
+		else {
+			ImGui::Text("Best race time: %.1f", info.best);
+			ImGui::Text("Worst race time: %.1f", info.worst);
+		}
+		
+
+		ImGui::End();
+	}
+	void renderMainWindow(ENetPeer* server, float fps, CarState& myCar, Timer& timer, 
 		RaceResult& rank, ChatContext& chatContext,int carCount) {
 		
+		if (statistickWindow) renderStatistickWin();
+
 		int myPlace = rank.places[myCar.id];
 		float lossPercent = server->packetLoss / 65535.0f * 100.0f;
 
@@ -34,6 +52,8 @@ public:
 			server->roundTripTimeVariance);
 
 		ImGui::Begin("Settings & Info");
+
+		if (ImGui::Button("Show statistick")) statistickWindow = true;
 
 		if (!readyToRace) ImGui::Text("Waiting others players | Minimum 3 players");
 

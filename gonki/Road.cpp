@@ -73,6 +73,12 @@ void drawRoadTurn(const Vec2& center, float radius, float startAngle, float endA
     glEnd();
 }
 void drawCheckPoints() {
+    int idx = 0;
+    for (const auto& cp : checkpoints) {
+        idx++;
+        RenderTextWorld(cp.pos.x,10.0f,cp.pos.y,1.0f,1.0f,0.0f,std::format("{}",idx).c_str());
+    }
+
     glColor3f(1.0f, 0.0f, 0.0f);
 
     const int segments = 32;
@@ -80,8 +86,7 @@ void drawCheckPoints() {
     glPointSize(8);
     glBegin(GL_POINTS);
 
-    for (const auto& cp : checkpoints)
-        glVertex3f(cp.pos.x, 0.5f, cp.pos.y);
+    for (const auto& cp : checkpoints) glVertex3f(cp.pos.x, 0.5f, cp.pos.y);
 
     glEnd();
 

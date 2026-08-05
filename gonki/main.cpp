@@ -137,7 +137,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        gui.render(server,fps,myCar,timer,rank,chatContext,currentCarsCount);
+        gui.renderMainWindow(server,fps,myCar,timer,rank,chatContext,currentCarsCount);
 
         ImGui::Render();
 
@@ -172,8 +172,8 @@ int main() {
         myCar.x += std::cos(myCar.angle) * myCar.speed * deltaTime;
         myCar.z += -std::sin(myCar.angle) * myCar.speed * deltaTime;
             
-        if (myCar.lap == TOTAL_LAPS && readyToRace) {
-            readyToRace = false;
+        if (myCar.lap >= TOTAL_LAPS && !raceFinished){
+            raceFinished = true;
 
             timer.stop();
 
