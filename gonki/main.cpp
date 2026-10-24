@@ -7,7 +7,8 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>  
-#include <GL/gl.h>
+#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
@@ -38,10 +39,10 @@
 #include "timer.h"
 
 Camera cam;
-Car car;
 CarState myCar{};
 GUI gui;
 Timer timer;
+Car car;
 
 uint32_t myId = 0;
 std::unordered_map<uint32_t, CarState> otherCars;
@@ -97,6 +98,16 @@ int main() {
     myCar.setupCar();
 
     glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout <<  "Failed to initialize GLAD\n";
+
+        glfwDestroyWindow(window);
+        glfwTerminate();
+
+        return -1;
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     BuildFont();
@@ -119,6 +130,7 @@ int main() {
     initLighting();
     gui.setup(window);
     timer.start();
+    car.init();
 
     float drag = 5.0f; // brake force
 

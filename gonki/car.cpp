@@ -1,5 +1,6 @@
 #include <windows.h>
-#include <GL/gl.h>
+#include <glad/glad.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include "car.h"
@@ -8,7 +9,12 @@
 #include <format>
 #include <string>
 #include "rank.h"
+#include "model.h"
 
+void Car::init() {
+    carModel.LoadOBJ("models//car//car.obj", 0.7f);
+    carModel.CreateVBO();
+}
 const float Car::getReductionCoef() {
     return reductionCoef;
 }
@@ -126,222 +132,7 @@ void Car::drawCube() {
     glEnd();
 }
 void Car::draw() {
-    glPushMatrix();
-
-    glTranslatef(positions.x, positions.y, positions.z);
-    glRotatef(rotation, 0, 1, 0);
-
-    // Body
-    glPushMatrix();
-
-    glScalef(2.5f, 0.35f, 1.5f);
-
-    glColor3f(0.0f, 0.7f, 0.1f);
-
-    glBegin(GL_QUADS);
-
-    // front
-    glVertex3f(-1, -1, 1);
-    glVertex3f(1, -1, 1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(-1, 1, 1);
-
-    // back
-    glVertex3f(-1, -1, -1);
-    glVertex3f(-1, 1, -1);
-    glVertex3f(1, 1, -1);
-    glVertex3f(1, -1, -1);
-
-    // left
-    glVertex3f(-1, -1, -1);
-    glVertex3f(-1, -1, 1);
-    glVertex3f(-1, 1, 1);
-    glVertex3f(-1, 1, -1);
-
-    // right
-    glVertex3f(1, -1, -1);
-    glVertex3f(1, 1, -1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(1, -1, 1);
-
-    // top
-    glVertex3f(-1, 1, -1);
-    glVertex3f(-1, 1, 1);
-    glVertex3f(1, 1, 1);
-    glVertex3f(1, 1, -1);
-
-    // bottom
-    glVertex3f(-1, -1, -1);
-    glVertex3f(1, -1, -1);
-    glVertex3f(1, -1, 1);
-    glVertex3f(-1, -1, 1);
-
-    glEnd();
-
-    glPopMatrix();
-
-
-    // Cabine
-    glPushMatrix();
-
-    glTranslatef(0, 0.55f, -0.2f);
-
-    glColor3f(0.08f, 0.08f, 0.12f);
-
-    glBegin(GL_QUADS);
-
-
-    // front windshield
-    glVertex3f(-1.2f, 0, 0.7f);
-    glVertex3f(1.2f, 0, 0.7f);
-    glVertex3f(1.2f, 1.0f, 0.3f);
-    glVertex3f(-1.2f, 1.0f, 0.3f);
-
-
-    // roof
-    glVertex3f(-1.2f, 1.0f, 0.3f);
-    glVertex3f(1.2f, 1.0f, 0.3f);
-    glVertex3f(1.0f, 1.0f, -0.8f);
-    glVertex3f(-1.0f, 1.0f, -0.8f);
-
-
-    // rear window
-    glVertex3f(-1.0f, 1.0f, -0.8f);
-    glVertex3f(1.0f, 1.0f, -0.8f);
-    glVertex3f(1.2f, 0, -0.8f);
-    glVertex3f(-1.2f, 0, -0.8f);
-
-
-    // left
-    glVertex3f(-1.2f, 0, 0.7f);
-    glVertex3f(-1.2f, 1.0f, 0.3f);
-    glVertex3f(-1.0f, 1.0f, -0.8f);
-    glVertex3f(-1.2f, 0, -0.8f);
-
-
-    // right
-    glVertex3f(1.2f, 0, 0.7f);
-    glVertex3f(1.2f, 0, -0.8f);
-    glVertex3f(1.0f, 1.0f, -0.8f);
-    glVertex3f(1.2f, 1.0f, 0.3f);
-
-
-    glEnd();
-
-    glPopMatrix();
-
-
-    // Bumpers
-    glPushMatrix();
-
-    glTranslatef(0.0f, -0.25f, 1.52f);
-
-    glScalef(2.3f, 0.12f, 0.06f);
-
-    glColor3f(0.05f, 0.05f, 0.05f);
-
-    drawCube();
-
-    glPopMatrix();
-
-    glPushMatrix();
-
-    glTranslatef(0.0f, -0.25f, -1.52f);
-
-    glScalef(2.3f, 0.12f, 0.06f);
-
-    glColor3f(0.05f, 0.05f, 0.05f);
-
-    drawCube();
-
-    glPopMatrix();
-
-
-    // Headlights
-    glPushMatrix();
-
-    glTranslatef(-1.7f, 0.0f, 1.52f);
-
-    glScalef(0.15f, 0.1f, 0.05f);
-
-    glColor3f(1.0f, 1.0f, 0.85f);
-
-    drawCube();
-
-    glPopMatrix();
-
-    glPushMatrix();
-
-    glTranslatef(1.7f, 0.0f, 1.52f);
-
-    glScalef(0.15f, 0.1f, 0.05f);
-
-    glColor3f(1.0f, 1.0f, 0.85f);
-
-    drawCube();
-
-    glPopMatrix();
-
-
-    // Taillights
-    glPushMatrix();
-
-    glTranslatef(-1.7f, 0.0f, -1.52f);
-
-    glScalef(0.15f, 0.1f, 0.05f);
-
-    glColor3f(0.8f, 0.05f, 0.05f);
-
-    drawCube();
-
-    glPopMatrix();
-
-    glPushMatrix();
-
-    glTranslatef(1.7f, 0.0f, -1.52f);
-
-    glScalef(0.15f, 0.1f, 0.05f);
-
-    glColor3f(0.8f, 0.05f, 0.05f);
-
-    drawCube();
-
-    glPopMatrix();
-
-
-    // Wheels
-    auto drawWheel = [&](float x, float z, bool front) {
-        glPushMatrix();
-
-        glTranslatef(x, -0.55f, z);
-
-
-        if (front) glRotatef(wheelAngle, 0, 1, 0);
-
-        glRotatef(90, 0, 1, 0);
-
-        glColor3f(0.02f, 0.02f, 0.02f);
-
-        drawCylinder(0.45f, 0.35f, 32);
-
-        glColor3f(0.75f, 0.75f, 0.75f);
-
-        drawCylinder(0.22f, 0.37f, 24);
-
-        glPopMatrix();
-        };
-
-
-    // front wheels
-    drawWheel(-2.2f, 0.9f, true);
-    drawWheel(2.2f, 0.9f, true);
-
-
-    // back wheels
-    drawWheel(-2.2f, -0.9f, false);
-    drawWheel(2.2f, -0.9f, false);
-
-    glPopMatrix();
+    carModel.Draw({ positions.x, positions.y, positions.z }, rotation, 0.0f);
 }
 void Car::updateProgress(CarState& car, const std::vector<Checkpoint>& checkpoints, int totalLaps) {
     int next = (car.lastCheckpoint + 1) % checkpoints.size();
@@ -380,10 +171,6 @@ int Car::getPlayerPlace(const CarState& myCar, const std::unordered_map<uint32_t
 }
 void Car::drawAllCars(std::unordered_map<uint32_t, CarState>& allCars,Car& car) {
     for (auto& [id, state] : allCars) {
-        glPushMatrix();
-        glTranslatef(state.x, 0.0f, state.z);
-        glRotatef(state.angle * 57.2958f, 0, 1, 0);
-        car.draw();
-        glPopMatrix();
+        carModel.Draw({state.x, 0.2f, state.z},state.angle,0.0f);
     }
 }

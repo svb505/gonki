@@ -129,15 +129,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bounds.cpp" />
     <ClCompile Include="car.cpp" />
     <ClCompile Include="database.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="model.cpp" />
     <ClCompile Include="rank.cpp" />
     <ClCompile Include="Road.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bounds.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="car.h" />
     <ClInclude Include="common.h" />
@@ -146,6 +149,7 @@
     <ClInclude Include="GUI.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="lightning.h" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="rank.h" />
     <ClInclude Include="Road.h" />
     <ClInclude Include="server.h" />

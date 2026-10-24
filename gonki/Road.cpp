@@ -1,6 +1,6 @@
 #include "Road.h"
 #include <windows.h>
-#include <GL/gl.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "text.h"
 #include <format>

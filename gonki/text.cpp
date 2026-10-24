@@ -1,5 +1,5 @@
 #include <windows.h>
-#include <GL/gl.h>
+#include <glad/glad.h>
 #include "text.h"
 
 GLuint fontBase = 0;
